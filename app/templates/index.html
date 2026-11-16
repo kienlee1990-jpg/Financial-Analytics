@@ -294,6 +294,7 @@
 
                 <div id="forecast-summary" class="forecast-summary" style="display: none;">
                     <h3><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#chart"></use></svg>Tóm tắt dự báo</h3>
+                    <button type="button" id="chat-about-analysis" class="chat-about-analysis">Trao đổi với AI về kết quả này →</button>
                     <p id="forecast-summary-note" class="forecast-summary-note"></p>
                     <div class="forecast-stats">
                         <div class="forecast-stat">
@@ -398,12 +399,12 @@
     <section class="financial-chat" id="financial-chat" aria-label="Trợ lý Financial Analytics" hidden>
         <header class="chat-header"><div class="chat-avatar" aria-hidden="true"><svg class="ui-icon"><use href="{{ url_for('static', filename='icons.svg') }}#chat"></use></svg></div><div class="chat-heading"><h2>Trợ lý phân tích</h2><p id="chat-provider-status">AI · Đang kiểm tra kết nối</p></div><button id="chat-clear" class="chat-icon-btn" type="button" aria-label="Bắt đầu hội thoại mới" title="Hội thoại mới">↺</button><button id="chat-close" class="chat-icon-btn" type="button" aria-label="Đóng chatbot">×</button></header>
         <div class="chat-setup" id="chat-setup" hidden><strong id="chat-setup-title">Chưa kết nối AI</strong><p>Thêm <code id="chat-key-name">GEMINI_API_KEY</code> vào tệp <code>.env</code> trong thư mục dự án để bật AI. Khóa chỉ dùng ở máy chủ.</p><button id="chat-recheck" type="button">Kiểm tra kết nối lại</button></div>
-        <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-relevant="additions"><div class="chat-welcome"><span class="chat-eyebrow">FINANCIAL ANALYTICS ASSISTANT</span><h3>Thêm một góc nhìn cho phân tích của bạn.</h3><p>Hỏi về chỉ báo, cách đọc biểu đồ hoặc kết quả dự báo. Bật ngữ cảnh bên dưới nếu muốn AI đọc tóm tắt dữ liệu đang xem.</p></div></div>
-        <div class="chat-suggestions" aria-label="Câu hỏi gợi ý"><button type="button" data-chat-prompt="Giải thích MA(7), MA(25) và MA(99) theo cách dễ hiểu.">Đọc đường MA</button><button type="button" data-chat-prompt="RSI và ATR là gì? Nên đọc chúng cùng biểu đồ nến như thế nào?">RSI &amp; ATR</button><button type="button" data-chat-prompt="Hãy giải thích kết quả dự báo Kronos trong dữ liệu ngữ cảnh. Nếu chưa có, hướng dẫn tôi cách tạo dự báo.">Giải thích dự báo</button></div>
-        <label class="chat-context"><input id="chat-use-context" type="checkbox"><span>Gửi tóm tắt dữ liệu tới <span id="chat-provider-label">Gemini</span><small id="chat-context-label">Chưa chọn dữ liệu</small></span></label>
+        <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-relevant="additions"><div class="chat-welcome"><span class="chat-eyebrow">FINANCIAL ANALYTICS ASSISTANT</span><h3>Thêm một góc nhìn cho phân tích của bạn.</h3><p>Sau khi chạy Kronos, bạn có thể hỏi tiếp về hướng dự báo, vùng vào, cắt lỗ, TP và phần diễn giải vừa xem. Kết quả hiện tại được gắn vào cuộc trò chuyện khi bạn gửi câu hỏi.</p></div></div>
+        <div class="chat-suggestions" aria-label="Câu hỏi gợi ý"><button type="button" data-chat-prompt="Vì sao kết quả Kronos vừa xem nghiêng về hướng đó? Giải thích dựa trên phần diễn giải đã hiển thị.">Vì sao hướng này?</button><button type="button" data-chat-prompt="Giải thích vùng vào, cắt lỗ, TP1 và TP2 trong kịch bản vừa hiển thị; đừng tự đặt mức giá mới.">Cắt lỗ &amp; TP</button><button type="button" data-chat-prompt="Những điểm nào cần thận trọng trong kết quả và kịch bản Kronos vừa xem?">Điểm cần lưu ý</button></div>
+        <label class="chat-context"><input id="chat-use-context" type="checkbox"><span>Dùng kết quả Kronos đang xem với <span id="chat-provider-label">Gemini</span><small id="chat-context-label">Chưa có kết quả Kronos. Hãy chạy dự báo trước.</small></span></label>
         <p id="chat-error" class="chat-error" role="alert" hidden></p>
         <form class="chat-form" id="chat-form"><label class="sr-only" for="chat-input">Câu hỏi dành cho trợ lý</label><textarea id="chat-input" rows="2" maxlength="2000" placeholder="Bạn muốn tìm hiểu điều gì?" required></textarea><button id="chat-send" type="submit" aria-label="Gửi câu hỏi"><svg class="ui-icon" aria-hidden="true"><use href="{{ url_for('static', filename='icons.svg') }}#send"></use></svg></button></form>
-        <p class="chat-footnote">AI có thể nhầm. Hãy đối chiếu dữ liệu trước khi quyết định.</p>
+        <p class="chat-footnote">Kết quả phân tích chỉ được gửi tới AI khi bạn đặt câu hỏi.</p>
     </section>
 
     <script src="{{ url_for('static', filename='dashboard.js', v='chart4') }}"></script>

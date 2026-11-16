@@ -403,7 +403,11 @@ OPENAI_MODEL=gpt-4.1-mini
 
 Cài thư viện bằng `pip install -r webui/requirements.txt`, chạy `./start`, mở chatbot và bấm **Kiểm tra kết nối lại** sau khi sửa `.env`. Cấu hình được đọc lại mỗi yêu cầu; khóa chỉ được dùng ở backend, không đưa vào HTML/JavaScript hay Git. Có thể đổi model theo quyền truy cập API của tài khoản.
 
-Tùy chọn **Gửi tóm tắt dữ liệu** mặc định tắt. Khi bật, backend tính tóm tắt OHLC, MA(7/25/99), RSI Wilder 14, ATR Wilder 14 và đính kèm tóm tắt dự báo hiện tại. Không gửi toàn bộ tệp lên dịch vụ AI.
+Sau khi Kronos trả kết quả, bấm **Trao đổi với AI về kết quả này** để hỏi tiếp. Chatbot được gắn với chính lần phân tích vừa hiển thị: giá tham chiếu/cuối kỳ, hướng long/short/neutral, thời hạn, vùng vào, cắt lỗ, TP1/TP2, phần diễn giải, điểm kỹ thuật tham khảo và đối chiếu thực tế nếu có.
+
+Tùy chọn **Dùng kết quả Kronos đang xem** được chọn khi có kết quả mới, và có thể bỏ chọn để hỏi kiến thức chung. Không có cuộc gọi AI tự động khi dự báo xong; kết quả chỉ được gửi tới nhà cung cấp khi bạn đặt câu hỏi. Luồng trao đổi về dự báo không đọc lại CSV, nên vẫn hoạt động khi dữ liệu tạm đầu vào hết hạn nhưng kết quả còn trên trang. Khi chuyển sang dữ liệu hoặc dự báo mới, lịch sử gửi cho AI được tách để không trộn lời khuyên của các lần phân tích. Không gửi toàn bộ tệp hay toàn bộ chuỗi nến.
+
+Chatbot giải thích kết quả đã hiển thị; không truy cập suy luận ẩn bên trong Kronos và không coi điểm kỹ thuật tham khảo là xác suất đã kiểm định.
 
 Hội thoại giữ trong bộ nhớ của trang, mất khi tải lại hoặc bấm hội thoại mới. Ứng dụng không lưu lịch sử thành tệp. OpenAI dùng Responses API với `store=False`; Gemini dùng GenerateContent với lịch sử do trang gửi, không tạo phiên lưu trữ trên ứng dụng. Nhà cung cấp xử lý nội dung khi bạn gửi câu hỏi. Chưa có API key thì chatbot hiển thị hướng dẫn cấu hình, không tạo câu trả lời giả.
 

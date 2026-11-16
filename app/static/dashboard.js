@@ -1,6 +1,8 @@
         // Global variables
         const temporaryDatasetPaths = new Set();
         let latestPredictionForChat = null;
+        let latestAnalysisForChat = null;
+        let analysisSequence = 0;
         let currentDataFile = null;
         let currentDataInfo = null;
         let currentLookback = 400;
@@ -313,7 +315,7 @@
             document.getElementById('prediction-mode-hint').textContent =
                 `Tệp đang chọn dùng ${lookback} nến lịch sử và tạo ${predictionHorizon} nến kế tiếp.`;
             currentDataFile = null;
-            latestPredictionForChat = null;
+            clearAnalysisForChat();
             document.getElementById('predict-btn').disabled = true;
             document.getElementById('data-info').style.display = 'none';
         }
@@ -337,7 +339,7 @@
 
                 if (response.data.success) {
                     currentDataFile = filePath;
-                    latestPredictionForChat = null;
+                    clearAnalysisForChat();
                     currentDataInfo = response.data.data_info;
                     showDataInfo(response.data.data_info);
                     displayDatasetOverview(filePath, response.data);
@@ -734,6 +736,7 @@
             } else {
                 document.getElementById('comparison-section').style.display = 'none';
             }
+            publishAnalysisForChat(result);
         }
 
         function getChartBucketStart(value, interval) {
@@ -1540,18 +1543,64 @@
             }
         }
 
-        window.getFinancialChatContext = function() {
-            const forecast = latestPredictionForChat;
-            const points = forecast?.prediction_results || [];
-            const closes = points.map(point => Number(point.close) * currentPriceScale).filter(Number.isFinite);
-            return {
-                file_path: currentDataFile,
-                price_unit: currentPriceUnit,
-                dataset_label: currentDataFile ? currentDataFile.split(/[\\/]/).pop() : null,
-                forecast: closes.length ? {
-                    reference_close: Number(forecast.reference_data?.close) * currentPriceScale,
-                    final_close: closes[closes.length - 1], min_close: Math.min(...closes),
-                    max_close: Math.max(...closes), bars: closes.length
+        function clearAnalysisForChat() {
+            const previous = latestAnalysisForChat;
+            latestPredictionForChat = null;
+            latestAnalysisForChat = null;
+            if (previous) window.dispatchEvent(new CustomEvent('financial-analysis-changed'));
+        }
+
+        function publishAnalysisForChat(result) {
+            const points = result.prediction_results || [];
+            if (!points.length || !result.reference_data) { clearAnalysisForChat(); return; }
+            const scaled = value => value == null ? null : Number(value) * currentPriceScale;
+            const closes = points.map(point => scaled(point.close)).filter(Number.isFinite);
+            if (!closes.length) { clearAnalysisForChat(); return; }
+            const text = id => document.getElementById(id)?.textContent?.trim() || '';
+            const plan = result.futures_scenario;
+            const scenario = plan ? { ...plan } : null;
+            if (scenario) {
+                for (const field of ['reference_close', 'atr14', 'stop_loss', 'take_profit_1', 'take_profit_2', 'projected_favorable_price']) scenario[field] = scaled(plan[field]);
+                scenario.entry_zone = plan.entry_zone?.map(scaled) || null;
+            }
+            latestAnalysisForChat = {
+                analysis_id: `analysis-${Date.now()}-${++analysisSequence}`,
+                symbol: text('instrument-symbol'), unit: currentPriceUnit,
+                prediction_type: result.prediction_type,
+                reference_timestamp: result.reference_data.timestamp,
+                forecast_summary: {
+                    reference_close: scaled(result.reference_data.close), final_close: closes[closes.length - 1],
+                    min_close: Math.min(...closes), max_close: Math.max(...closes), bars: points.length,
+                    min_low: Math.min(...points.map(point => scaled(point.low))),
+                    max_high: Math.max(...points.map(point => scaled(point.high)))
+                },
+                forecast_horizon: result.forecast_horizon || null,
+                context_analysis: result.context_analysis || null,
+                direction_estimate: result.direction_estimate || null,
+                futures_scenario: scenario,
+                displayed_analysis: {
+                    summary_note: text('forecast-summary-note'), recent_context: text('explanation-recent-context'),
+                    projected_move: text('explanation-projected-move'), candle_pattern: text('explanation-pattern'),
+                    limits: text('explanation-limits'),
+                    scenario_bias: plan ? text('futures-bias') : '',
+                    direction_estimate: plan ? text('futures-direction-estimate') : '',
+                    horizon: plan ? text('futures-horizon') : '',
+                    target_check: plan ? text('futures-target-check') : '',
+                    dca: plan ? text('futures-dca') : '', leverage: plan ? text('futures-leverage') : '',
+                    calculation: plan ? text('futures-formula') : ''
+                },
+                comparison: result.has_comparison ? {
+                    mae: text('mae'), rmse: text('rmse'), mape: text('mape'),
+                    actual_bars: (result.actual_data || []).length
                 } : null
+            };
+            window.dispatchEvent(new CustomEvent('financial-analysis-changed'));
+        }
+
+        window.getFinancialChatContext = function() {
+            return {
+                file_path: currentDataFile, price_unit: currentPriceUnit,
+                dataset_label: currentDataFile ? currentDataFile.split(/[\\/]/).pop() : null,
+                analysis: latestAnalysisForChat ? JSON.parse(JSON.stringify(latestAnalysisForChat)) : null
             };
         };

@@ -161,3 +161,11 @@ Predictor tự chọn CUDA → MPS → CPU nếu không chỉ định; API tải
 - Chưa sửa kiểm soát quyền truy cập, giới hạn dự báo, lỗi timestamp hoặc trạng thái nhiều worker do yêu cầu không đổi logic. Chưa thể coi là public-production-ready chỉ vì đã sắp xếp thư mục.
 
 - Kết quả kiểm tra đợt sắp xếp: 10 test chatbot + 5 test dữ liệu tạm + 3 test cấu trúc/khởi chạy đều qua (18 test). API/preview/ba chế độ dự báo so với baseline giống nhau; các hàm dự báo, tải mô hình và chatbot có AST không đổi. Hash mô hình, huấn luyện, ví dụ, giao diện, dữ liệu/kết quả cũ và .env không đổi. Requirements ở hai đường dẫn cài đều qua dry-run offline, pip check không báo xung đột. Máy chủ hiện chạy từ app.wsgi:app; chưa chạy CI trên GitHub.
+
+## Hội thoại tiếp nối kết quả Kronos (16/11/2026)
+
+- Chatbot mới lấy snapshot sau khi dashboard đã hiển thị đầy đủ dự báo và kịch bản: lời diễn giải, hướng LONG/SHORT/NEUTRAL, vùng vào, SL/TP, khung dự báo, điểm kỹ thuật và đối chiếu nếu có. Giá VNStock được đổi sang VND đúng một lần. Không thay đổi mô hình hay thuật toán dự báo.
+- Khi có kết quả, tự bật gắn ngữ cảnh; chỉ gửi đến nhà cung cấp khi người dùng gửi câu hỏi. Nút “Trao đổi với AI về kết quả này” mở chat. Người dùng có thể bỏ chọn để hỏi chung. Lịch sử tiếp nối cùng analysis_id; đổi dữ liệu/kết quả thì xóa lịch sử gửi AI để tránh lẫn kết quả.
+- POST /api/chat nhận analysis có allowlist và giới hạn độ dài/số hữu hạn; source=displayed_kronos_analysis. Luồng UI mới không gửi đường dẫn CSV, không đọc lại CSV; dữ liệu tạm hết hạn không ảnh hưởng snapshot đang xem. Nhánh tóm tắt CSV cũ chỉ giữ tương thích client cũ.
+- 22 unittest của chatbot/dữ liệu tạm/cấu trúc và bài Node chạy renderer thực + transport chat đều qua. Full unittest discovery còn gặp dependency pytest thiếu ở test_kronos_regression có sẵn; không chạy lại hồi quy model cho thay đổi chatbot.
+- Đã restart Waitress 7070 từ app.wsgi:app. Gemini thực nhận dữ liệu giả lập trả đúng TP2=94, SL=103 trong 1,74s và câu hỏi tiếp TP1=97 trong 1,50s. Không gửi dữ liệu thị trường thật trong smoke test. Người dùng cần tải lại trang, nạp mô hình/dữ liệu và chạy dự báo một lần để có snapshot mới.

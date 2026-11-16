@@ -5,10 +5,29 @@
     const log = el('chat-messages'), send = el('chat-send'), error = el('chat-error');
     const welcome = log.innerHTML;
     let history = [], busy = false, controller = null, generation = 0;
+    let activeAnalysisId = null;
 
     function updateContext() {
         const context = window.getFinancialChatContext?.() || {};
-        el('chat-context-label').textContent = context.dataset_label || 'Chưa chọn dữ liệu';
+        const analysis = context.analysis;
+        const id = analysis?.analysis_id || null;
+        if (id !== activeAnalysisId) {
+            const hadAnalysis = activeAnalysisId !== null;
+            ++generation; controller?.abort(); controller = null; history = [];
+            activeAnalysisId = id;
+            setBusy(false); error.hidden = true;
+            // The user asked to continue discussing the latest displayed Kronos result.
+            // Nothing is sent to the provider until the user sends a question.
+            el('chat-use-context').checked = Boolean(id);
+            if (id || hadAnalysis) {
+                const notice = document.createElement('div'); notice.className = 'chat-context-change';
+                notice.textContent = id ? `Đã gắn kết quả Kronos: ${analysis.symbol || context.dataset_label || 'dự báo mới'}. Các câu hỏi tiếp theo sẽ bám vào kết quả này.` : 'Đã đổi dữ liệu. Chạy dự báo mới để tiếp tục trao đổi về kết quả Kronos.';
+                log.appendChild(notice); log.scrollTop = log.scrollHeight;
+            }
+        }
+        el('chat-context-label').textContent = analysis
+            ? `${analysis.symbol || context.dataset_label || 'Kronos'} · ${analysis.forecast_summary.bars} nến dự báo · ${analysis.futures_scenario?.bias?.toUpperCase() || 'Kết quả vừa xem'}`
+            : 'Chưa có kết quả Kronos. Hãy chạy dự báo trước.';
         return context;
     }
     function openChat(open) {
@@ -54,8 +73,15 @@
         if (busy || !message) return;
         if (message.length > 2000) { error.textContent = 'Câu hỏi tối đa 2.000 ký tự.'; error.hidden = false; return; }
         error.hidden = true;
+        const context = updateContext();
         const payload = { message, history: history.slice(-12), include_context: el('chat-use-context').checked };
-        if (payload.include_context) Object.assign(payload, updateContext());
+        if (payload.include_context) {
+            if (!context.analysis) {
+                error.textContent = 'Chưa có kết quả phân tích. Hãy chạy dự báo Kronos trước, hoặc bỏ chọn để hỏi kiến thức chung.';
+                error.hidden = false; return;
+            }
+            payload.analysis = context.analysis;
+        }
         bubble('user', message); input.value = '';
         const pending = document.createElement('div'); pending.className = 'chat-pending'; pending.textContent = 'Trợ lý đang suy nghĩ…';
         pending.setAttribute('role', 'status'); log.appendChild(pending); log.scrollTop = log.scrollHeight;
@@ -86,6 +112,8 @@
             if (current === generation) { controller = null; setBusy(false); }
         }
     }
+    window.addEventListener('financial-analysis-changed', updateContext);
+    el('chat-about-analysis')?.addEventListener('click', () => { openChat(true); el('chat-use-context').checked = true; });
     launcher.addEventListener('click', () => openChat(panel.hidden));
     el('chat-close').addEventListener('click', () => openChat(false));
     el('chat-recheck').addEventListener('click', checkConnection);
