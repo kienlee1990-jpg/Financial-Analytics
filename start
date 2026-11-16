@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+"""Short launcher: supports both `python3 start` and `./start`."""
+
+import os
+from pathlib import Path
+import sys
+
+
+project_root = Path(__file__).resolve().parent
+os.chdir(project_root)
+os.execv(sys.executable, [sys.executable, str(project_root / "run.py")])

@@ -62,6 +62,9 @@ logs/
 # Environment
 .env
 .venv
+.venv-vnstock/
+.python-runtime/
+.vnstock-python.tar.gz
 env/
 venv/
 ENV/
@@ -74,3 +77,10 @@ venv.bak/
 temp/
 tmp/
 .python-version
+
+# Local reports, generated predictions, and additional environment files
+.pytest_cache/
+.ruff_cache/
+.env.*
+!.env.example
+webui/prediction_results/*.json

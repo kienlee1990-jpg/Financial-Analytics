@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FINANCIAL ANALYTICS</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='kronos-mark.svg', v='3') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css', v='logo3') }}">
+</head>
+<body data-theme="light">
+    <a class="skip-link" href="#workspace">Đi đến không gian phân tích</a>
+    <div class="container">
+        <header class="topbar">
+            <a class="wordmark" href="/" aria-label="Financial Analytics, trang chủ"><img class="brand-mark" src="{{ url_for('static', filename='kronos-mark.svg', v='3') }}" width="34" height="34" alt=""><span class="brand-label"><span class="brand-name">FINANCIAL ANALYTICS</span></span></a>
+            <nav aria-label="Điều hướng chính"><a href="#forecast-summary" id="results-link" hidden>Kết quả dự báo</a></nav>
+            <div class="topbar-right"><span class="workspace-badge">AI Research Terminal</span><button class="settings-toggle" id="settings-toggle" type="button" aria-controls="analysis-settings" aria-expanded="false">Thiết lập</button></div>
+        </header>
+        <div class="workspace-header"><div class="workspace-title"><span class="workspace-title-icon" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#chart"></use></svg></span><div><span class="workspace-path">Không gian làm việc / Phân tích</span><h1 id="page-title">Phân tích thị trường</h1></div></div><span class="workspace-caption">Kronos · OHLCV · Dự báo AI</span></div>
+        <main class="main-content" id="workspace">
+            <aside class="control-panel" id="analysis-settings" aria-label="Thiết lập phân tích">
+                <div class="panel-heading"><h2><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#sliders"></use></svg>Thiết lập phân tích</h2><span class="panel-tag">KRONOS</span></div>
+                <details class="workflow-help" id="workflow"><summary>Hướng dẫn bắt đầu</summary><ol class="quick-guide"><li>Chọn thị trường và lấy dữ liệu.</li><li>Tải mô hình phù hợp với thiết bị.</li><li>Bắt đầu dự báo để xem kết quả.</li></ol></details>
+<div class="settings-section"><h3><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#database"></use></svg>Nguồn dữ liệu</h3>
+                <!-- Data File Selection -->
+                <div class="market-tabs" role="tablist" aria-label="Chọn loại thị trường">
+                    <button class="market-tab" id="coin-tab" type="button" role="tab" aria-selected="false" aria-controls="coin-data-panel" aria-expanded="false">Coin</button>
+                    <button class="market-tab" id="stock-tab" type="button" role="tab" aria-selected="false" aria-controls="stock-data-panel" aria-expanded="false">Chứng khoán</button>
+                </div>
+
+                <section class="market-panel" id="coin-data-panel" role="tabpanel" aria-labelledby="coin-tab" hidden>
+                <div class="time-window-container">
+                    <details class="market-source-details" id="coin-source-details">
+                    <summary>Lấy dữ liệu nến từ Binance</summary>
+                    <div class="market-source-fields">
+                    <div class="form-group">
+                        <label for="binance-symbol">Cặp giao dịch</label>
+                        <input type="text" id="binance-symbol" list="binance-symbol-options" value="BTCUSDT" placeholder="Gõ để tìm, ví dụ ETHUSDT" autocomplete="off">
+                        <datalist id="binance-symbol-options"></datalist>
+                        <small id="binance-symbol-hint" class="form-text">Gõ mã coin để tìm trong danh sách hoặc nhập trực tiếp, ví dụ ETHUSDT.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="binance-interval">Khung thời gian</label>
+                        <select id="binance-interval">
+                            <option value="5m">5 phút</option>
+                            <option value="15m">15 phút</option>
+                            <option value="1h" selected>1 giờ</option>
+                            <option value="4h">4 giờ</option>
+                            <option value="1d">1 ngày</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="binance-limit">Số nến lịch sử (520–1000)</label>
+                        <input type="number" id="binance-limit" value="700" min="520" max="1000" step="1">
+                    </div>
+                    <button id="fetch-binance-btn" class="btn btn-success"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#download"></use></svg>Tải dữ liệu Binance</button>
+                    <small class="form-text">Lấy dữ liệu Spot công khai, không cần API key. Dữ liệu được nạp tạm để xem và dự báo, không lưu tệp vào máy.</small>
+                    </div>
+                    </details>
+                </div>
+                </section>
+
+                <section class="market-panel" id="stock-data-panel" role="tabpanel" aria-labelledby="stock-tab" hidden>
+                <div class="time-window-container">
+                    <details class="market-source-details" id="stock-source-details">
+                    <summary>Lấy dữ liệu cổ phiếu Việt Nam qua Vnstock</summary>
+                    <div class="market-source-fields">
+                    <div class="form-group">
+                        <label for="vnstock-symbol">Mã chứng khoán</label>
+                        <input type="text" id="vnstock-symbol" list="vnstock-symbol-options" value="FPT" maxlength="10" placeholder="Gõ để tìm, ví dụ VCB, HPG" autocomplete="off">
+                        <datalist id="vnstock-symbol-options"></datalist>
+                        <small id="vnstock-symbol-hint" class="form-text">Gõ mã để tìm trong danh sách cổ phiếu HOSE, HNX, UPCoM hoặc nhập trực tiếp.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="vnstock-api-key">API key Vnstock (không bắt buộc):</label>
+                        <input type="password" id="vnstock-api-key" placeholder="Dán API key nếu đã đăng ký" autocomplete="off">
+                        <small class="form-text">Tài khoản khách thường chỉ có khoảng 240 phiên ở khung ngày, chưa đủ 400 nến. Hãy dùng khung 15 phút hoặc nhập API key Vnstock để lấy lịch sử dài hơn. Đăng ký key bằng lệnh <code>./.venv-vnstock/bin/vnstock register</code> trong Terminal. Key chỉ dùng cho lần tải này.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="vnstock-interval">Khung thời gian</label>
+                        <select id="vnstock-interval">
+                            <option value="1m">1 phút</option>
+                            <option value="5m">5 phút</option>
+                            <option value="15m" selected>15 phút</option>
+                            <option value="30m">30 phút</option>
+                            <option value="1h">1 giờ</option>
+                            <option value="1D">1 ngày</option>
+                            <option value="1W">1 tuần</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="vnstock-count">Số nến lịch sử (400–1000)</label>
+                        <input type="number" id="vnstock-count" value="700" min="400" max="1000" step="1">
+                    </div>
+                    <button id="fetch-vnstock-btn" class="btn btn-success"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#download"></use></svg>Lấy dữ liệu cổ phiếu</button>
+                    <small class="form-text">Cổ phiếu cần tối thiểu 400 nến lịch sử. Dữ liệu được nạp tạm để xem và dự báo, không lưu tệp vào máy.</small>
+                    </div>
+                    </details>
+                </div>
+                </section>
+
+                <div class="form-group">
+                    <label for="data-file-select">Chọn tệp dữ liệu:</label>
+                    <select id="data-file-select">
+                        <option value="">Đang tải danh sách tệp dữ liệu...</option>
+                    </select>
+                    <small class="form-text">Chọn dữ liệu tạm vừa lấy hoặc tệp có sẵn trong thư mục data.</small>
+                </div>
+
+                <button id="load-data-btn" class="btn btn-secondary">
+                    <svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#folder"></use></svg>Tải dữ liệu
+                </button>
+
+                <!-- Data Information Display -->
+                <div id="data-info" class="data-info" style="display: none;">
+                    <h3>Thông tin dữ liệu</h3>
+                    <p><strong>Số dòng:</strong> <span id="data-rows">-</span></p>
+                    <p><strong>Số cột:</strong> <span id="data-cols">-</span></p>
+                    <p><strong>Khoảng thời gian:</strong> <span id="data-time-range">-</span></p>
+                    <p><strong>Khoảng giá:</strong> <span id="data-price-range">-</span></p>
+                    <p><strong>Tần suất dữ liệu:</strong> <span id="data-timeframe">-</span></p>
+                    <p><strong>Các cột dự báo:</strong> <span id="data-prediction-cols">-</span></p>
+                    <p id="data-unit-note" class="form-text" style="display: none;"></p>
+                </div>
+
+                <hr style="margin: 20px 0; border: 1px solid #e2e8f0;">
+
+</div>
+<div class="settings-section"><h3><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#cpu"></use></svg>Mô hình dự báo</h3>
+                <!-- Model Selection -->
+                <div class="form-group">
+                    <label for="model-select">Mô hình</label>
+                    <select id="model-select">
+                        <option value="">Đang tải danh sách mô hình...</option>
+                    </select>
+                    <small class="form-text">Chọn mô hình dự báo muốn sử dụng</small>
+                </div>
+
+                <!-- Device Selection -->
+                <div class="form-group">
+                    <label for="device-select">Thiết bị tính toán</label>
+                    <select id="device-select">
+                        <option value="cpu">CPU</option>
+                        <option value="cuda">CUDA (GPU NVIDIA)</option>
+                        <option value="mps">MPS (máy Mac Apple Silicon)</option>
+                    </select>
+                    <small class="form-text">Chọn thiết bị dùng để chạy mô hình</small>
+                </div>
+
+                <!-- Model Status -->
+                <div id="model-status" class="status info" style="display: none;">
+                    Trạng thái mô hình
+                </div>
+
+                <!-- Load Model Button -->
+                <button id="load-model-btn" class="btn btn-secondary">
+                    <svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#cpu"></use></svg>Tải mô hình
+                </button>
+
+                <hr style="margin: 20px 0; border: 1px solid #e2e8f0;">
+
+</div>
+                <details class="advanced-settings prediction-settings">
+                    <summary>Chế độ và khoảng dự báo</summary>
+
+                <div class="form-group">
+                    <label for="prediction-mode">Chế độ dự báo:</label>
+                    <select id="prediction-mode">
+                        <option value="future" selected>Dự báo tiếp theo sau nến mới nhất</option>
+                        <option value="backtest" id="backtest-option">Kiểm tra trên một giai đoạn lịch sử</option>
+                    </select>
+                    <small class="form-text" id="prediction-mode-hint">Coin và cổ phiếu dùng 400 nến lịch sử. Mỗi lần dự báo tạo 120 nến kế tiếp.</small>
+                </div>
+
+                <!-- Time Window Selector, shown only for historical backtesting -->
+                <div class="time-window-container" id="time-window-section" style="display: none;">
+                    <h3>Chọn khoảng thời gian</h3>
+                    <div class="time-window-info">
+                        <span id="window-start">Bắt đầu: --</span>
+                        <span id="window-end">Kết thúc: --</span>
+                        <span id="window-size">Khoảng chọn: 400 + 120 = 520 điểm</span>
+                    </div>
+
+                    <div class="time-window-slider">
+                        <div class="slider-track">
+                            <div class="slider-handle start-handle" id="start-handle"></div>
+                            <div class="slider-selection" id="slider-selection"></div>
+                            <div class="slider-handle end-handle" id="end-handle"></div>
+                        </div>
+                        <div class="slider-labels">
+                            <span id="min-label">Sớm nhất</span>
+                            <span id="max-label">Mới nhất</span>
+                        </div>
+                    </div>
+
+                    <small class="form-text" id="backtest-window-hint">Kéo thanh trượt để chọn khoảng 520 điểm: 400 điểm lịch sử và 120 điểm đối chiếu.</small>
+                </div>
+
+                <!-- Prediction Parameters -->
+                <div class="form-group">
+                    <label for="lookback">Số điểm dữ liệu lịch sử:</label>
+                    <input type="number" id="lookback" value="400" readonly>
+                    <small class="form-text" id="lookback-hint">Coin và cổ phiếu đều dùng 400 điểm dữ liệu lịch sử.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="pred-len">Số điểm cần dự báo:</label>
+                    <input type="number" id="pred-len" value="120" readonly>
+                    <small class="form-text">Cố định ở 120 điểm dữ liệu</small>
+                </div>
+                </details>
+
+                <details class="advanced-settings">
+                    <summary><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#sliders"></use></svg>Tham số nâng cao</summary>
+                    <p>Các mục này điều chỉnh tính ngẫu nhiên và số lượt lấy mẫu. Nếu chưa rõ, cứ giữ nguyên mặc định.</p>
+
+                <!-- Prediction Quality Parameters -->
+                <div class="form-group">
+                    <label for="temperature">Độ ngẫu nhiên dự báo (T):</label>
+                    <input type="range" id="temperature" value="1.0" min="0.1" max="2.0" step="0.1">
+                    <span id="temperature-value">1.0</span>
+                    <small class="form-text">Điều chỉnh độ ngẫu nhiên: giá trị cao tạo kết quả đa dạng hơn, giá trị thấp cho kết quả ổn định hơn.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="top-p">Tham số lấy mẫu top_p:</label>
+                    <input type="range" id="top-p" value="0.9" min="0.1" max="1.0" step="0.1">
+                    <span id="top-p-value">0.9</span>
+                    <small class="form-text">Điều chỉnh độ đa dạng của dự báo; giá trị cao xét nhiều khả năng hơn.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="sample-count">Số lần lấy mẫu:</label>
+                    <input type="number" id="sample-count" value="1" min="1" max="5" step="1">
+                    <small class="form-text">Tạo nhiều lượt dự báo để lấy kết quả tổng hợp (khuyến nghị 1–3 lượt).</small>
+                </div>
+                </details>
+
+                <button id="predict-btn" class="btn btn-success" disabled>
+                    <svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#chart"></use></svg>Bắt đầu dự báo
+                </button>
+
+                <!-- Loading Status -->
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Đang xử lý, vui lòng chờ...</p>
+                </div>
+            </aside>
+
+            <section class="chart-container" aria-label="Biểu đồ và kết quả phân tích">
+                <div class="instrument-bar"><div class="instrument-name"><span class="instrument-icon" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#candles"></use></svg></span><div><h2 id="instrument-symbol">Chưa chọn dữ liệu</h2><p id="instrument-source">Chọn Coin, Chứng khoán hoặc tệp CSV</p></div></div><span class="dataset-badge" id="dataset-badge">CHƯA CÓ DỮ LIỆU</span></div>
+                <div class="quote-strip" aria-label="Giá nến cuối trong dữ liệu"><div class="last-quote"><span>Đóng cửa gần nhất</span><strong id="quote-close">—</strong></div><div><span>Mở cửa</span><strong id="quote-open">—</strong></div><div><span>Cao nhất</span><strong id="quote-high">—</strong></div><div><span>Thấp nhất</span><strong id="quote-low">—</strong></div><div><span>Khối lượng</span><strong id="quote-volume">—</strong></div></div>
+                <div class="chart-controls">
+                    <div class="form-group">
+                        <label for="chart-interval">Khung nến</label>
+                        <select id="chart-interval">
+                            <option value="source">Theo dữ liệu gốc</option>
+                            <option value="1h">1 giờ</option>
+                            <option value="1d">1 ngày</option>
+                            <option value="1w">1 tuần</option>
+                            <option value="1M">1 tháng</option>
+                        </select>
+                        <small id="chart-interval-hint" class="form-text">Chọn khung để gộp nến trên biểu đồ.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="chart-activity">Chỉ báo giao dịch</label>
+                        <select id="chart-activity">
+                            <option value="volume">Khối lượng giao dịch</option>
+                            <option value="amount">Giá trị giao dịch</option>
+                        </select>
+                        <small id="chart-activity-hint" class="form-text">Chọn loại dữ liệu giao dịch hiển thị dưới nến.</small>
+                    </div>
+                    <div class="form-group"><label for="chart-density">Góc nhìn</label><select id="chart-density"><option value="80" selected>Cận cảnh · 80 nến</option><option value="160">Tổng quan · 160 nến</option><option value="all">Toàn bộ dữ liệu</option></select></div>
+                    <button type="button" class="chart-expand-btn" id="chart-expand" aria-pressed="false">Mở rộng ⤢</button>
+                </div>
+                <div class="chart-stage">
+                    <div id="chart-empty" class="chart-empty">
+                        <span class="empty-crosshair" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#candles"></use></svg></span><h3>Chưa có dữ liệu biểu đồ</h3><p>Chọn thị trường và tải dữ liệu trong bảng thiết lập.<br>Biểu đồ nến sẽ xuất hiện trước khi chạy mô hình.</p><ol class="empty-steps" aria-label="Quy trình phân tích"><li><span>01</span> Chọn dữ liệu</li><li><span>02</span> Tải mô hình</li><li><span>03</span> Xem dự báo</li></ol><button type="button" class="empty-link" id="open-settings">Thiết lập nguồn dữ liệu <span aria-hidden="true">→</span></button>
+                    </div>
+                    <div id="chart"></div>
+                </div>
+                <div class="chart-caption"><span id="chart-data-caption">Dữ liệu: chưa tải</span><span>Giá trị từ dữ liệu lịch sử · Không phải báo giá trực tiếp</span></div>
+                <p id="chart-interaction-hint" class="form-text chart-interaction-hint" role="status" aria-live="polite" style="margin: -10px 0 14px;">Nhấp chuột trái một lần để khóa thao tác trên biểu đồ. Nhấp lần nữa để nhả và cuộn trang.</p>
+                <details class="chart-guide">
+                    <summary><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#book"></use></svg>Cách đọc biểu đồ và dự báo</summary>
+                    <p><strong>Nến xanh:</strong> giá đóng cửa cao hơn giá mở cửa trong khung đó. <strong>Nến đỏ:</strong> giá đóng cửa thấp hơn giá mở cửa.</p>
+                    <p><strong>MA(7/25/99):</strong> giá đóng cửa trung bình của 7, 25 hoặc 99 nến gần nhất. Các đường này giúp nhìn xu hướng, không phải tín hiệu mua bán tự động.</p>
+                    <p><strong>Nến dự báo:</strong> ước tính từ mô hình, chưa phải giá thị trường thực. Chọn khung hiển thị chỉ gộp nến trên biểu đồ, không chạy lại dự báo.</p>
+                    <p><strong>Trong kịch bản giao dịch:</strong> LONG là kịch bản theo hướng tăng, SHORT theo hướng giảm; ATR là biên độ dao động trung bình. TP là mức chốt lời, DCA là chia thêm lệnh theo thời gian hoặc mức giá.</p>
+                    <p id="chart-unit-guide">Rê chuột lên nến để xem giá mở, cao nhất, thấp nhất, đóng cửa và khối lượng.</p>
+                </details>
+                <div class="research-note">Kết quả AI là ước tính và không phải khuyến nghị đầu tư.</div>
+
+                <div id="forecast-summary" class="forecast-summary" style="display: none;">
+                    <h3><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#chart"></use></svg>Tóm tắt dự báo</h3>
+                    <p id="forecast-summary-note" class="forecast-summary-note"></p>
+                    <div class="forecast-stats">
+                        <div class="forecast-stat">
+                            <div class="label">Giá đóng cửa nến gần nhất</div>
+                            <div class="value" id="summary-reference-close">-</div>
+                        </div>
+                        <div class="forecast-stat">
+                            <div class="label">Giá đóng cửa dự báo cuối kỳ</div>
+                            <div class="value" id="summary-final-close">-</div>
+                        </div>
+                        <div class="forecast-stat">
+                            <div class="label">Thay đổi dự kiến đến cuối kỳ</div>
+                            <div class="value" id="summary-change">-</div>
+                        </div>
+                        <div class="forecast-stat">
+                            <div class="label">Khoảng giá đóng cửa dự báo</div>
+                            <div class="value" id="summary-range">-</div>
+                        </div>
+                    </div>
+                    <div class="forecast-explanation">
+                        <h4>Diễn giải hướng dự báo</h4>
+                        <p id="explanation-recent-context"></p>
+                        <p id="explanation-projected-move"></p>
+                        <p id="explanation-pattern"></p>
+                        <p id="explanation-limits"></p>
+                    </div>
+                    <div class="futures-scenario">
+                        <h4>Kịch bản giao dịch tham khảo</h4>
+                        <p class="scenario-disclaimer">Đây là kịch bản tham khảo được tính từ dự báo và ATR của dữ liệu Spot, không phải khuyến nghị đặt lệnh. Mô hình không tính funding, giá Mark, đòn bẩy, phí, thanh khoản hay mức chịu lỗ của bạn.</p>
+                        <p id="futures-bias"></p>
+                        <p id="futures-direction-estimate"></p>
+                        <p id="futures-horizon"></p>
+                        <div id="futures-levels" class="forecast-stats" style="display: none; margin-top: 12px;">
+                            <div class="forecast-stat"><div class="label">Vùng xem xét vào lệnh</div><div class="value" id="futures-entry">-</div></div>
+                            <div class="forecast-stat risk-stop"><div class="label">Cắt lỗ tham khảo (1.5 ATR)</div><div class="value" id="futures-stop">-</div></div>
+                            <div class="forecast-stat reward-target"><div class="label">Chốt lời 1 (1R)</div><div class="value" id="futures-tp1">-</div></div>
+                            <div class="forecast-stat reward-target"><div class="label">Chốt lời 2 (2R)</div><div class="value" id="futures-tp2">-</div></div>
+                        </div>
+                        <p id="futures-target-check"></p>
+                        <p id="futures-dca"></p>
+                        <p id="futures-leverage"></p>
+                        <p id="futures-formula" class="scenario-disclaimer"></p>
+                    </div>
+                </div>
+
+                <!-- Comparison Analysis -->
+                <div id="comparison-section" class="comparison-section" style="display: none;">
+                    <h3><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#compare"></use></svg>So sánh dự báo với dữ liệu thực tế</h3>
+                    <div id="comparison-info" class="comparison-info">
+                        <p><strong>Loại dự báo:</strong> <span id="prediction-type">-</span></p>
+                        <p><strong>Dữ liệu đối chiếu:</strong> <span id="comparison-data">-</span></p>
+                        <p><strong>Đơn vị giá:</strong> <span id="comparison-unit">USDT</span></p>
+                    </div>
+
+                    <div class="error-stats">
+                        <div class="error-stat">
+                            <h4>Sai số tuyệt đối trung bình (MAE)</h4>
+                            <div class="value" id="mae">-</div>
+                            <div class="unit" id="mae-unit">USDT</div>
+                        </div>
+                        <div class="error-stat">
+                            <h4>Căn bậc hai sai số bình phương trung bình (RMSE)</h4>
+                            <div class="value" id="rmse">-</div>
+                            <div class="unit" id="rmse-unit">USDT</div>
+                        </div>
+                        <div class="error-stat">
+                            <h4>Sai số phần trăm tuyệt đối trung bình (MAPE)</h4>
+                            <div class="value" id="mape">-</div>
+                            <div class="unit">%</div>
+                        </div>
+                    </div>
+
+                    <div class="error-details">
+                        <h4>Chi tiết đối chiếu:</h4>
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            <table class="comparison-table">
+                                <thead>
+                                    <tr>
+                                        <th>Thời gian</th>
+                                        <th>Mở cửa thực tế</th>
+                                        <th>Mở cửa dự báo</th>
+                                        <th>Cao nhất thực tế</th>
+                                        <th>Cao nhất dự báo</th>
+                                        <th>Thấp nhất thực tế</th>
+                                        <th>Thấp nhất dự báo</th>
+                                        <th>Đóng cửa thực tế</th>
+                                        <th>Đóng cửa dự báo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="comparison-tbody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <footer class="app-footer"><span><i aria-hidden="true"></i> KRONOS ANALYTICS</span><span>Dữ liệu lịch sử / Mô hình AI / Phân tích định lượng</span></footer>
+    </div>
+
+    <button class="chat-launcher" id="chat-launcher" type="button" aria-controls="financial-chat" aria-expanded="false"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#chat"></use></svg><span>Hỏi trợ lý AI</span></button>
+    <section class="financial-chat" id="financial-chat" aria-label="Trợ lý Financial Analytics" hidden>
+        <header class="chat-header"><div class="chat-avatar" aria-hidden="true"><svg class="ui-icon"><use href="{{ url_for('static', filename='icons.svg') }}#chat"></use></svg></div><div class="chat-heading"><h2>Trợ lý phân tích</h2><p id="chat-provider-status">AI · Đang kiểm tra kết nối</p></div><button id="chat-clear" class="chat-icon-btn" type="button" aria-label="Bắt đầu hội thoại mới" title="Hội thoại mới">↺</button><button id="chat-close" class="chat-icon-btn" type="button" aria-label="Đóng chatbot">×</button></header>
+        <div class="chat-setup" id="chat-setup" hidden><strong id="chat-setup-title">Chưa kết nối AI</strong><p>Thêm <code id="chat-key-name">GEMINI_API_KEY</code> vào tệp <code>.env</code> trong thư mục dự án để bật AI. Khóa chỉ dùng ở máy chủ.</p><button id="chat-recheck" type="button">Kiểm tra kết nối lại</button></div>
+        <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-relevant="additions"><div class="chat-welcome"><span class="chat-eyebrow">FINANCIAL ANALYTICS ASSISTANT</span><h3>Thêm một góc nhìn cho phân tích của bạn.</h3><p>Hỏi về chỉ báo, cách đọc biểu đồ hoặc kết quả dự báo. Bật ngữ cảnh bên dưới nếu muốn AI đọc tóm tắt dữ liệu đang xem.</p></div></div>
+        <div class="chat-suggestions" aria-label="Câu hỏi gợi ý"><button type="button" data-chat-prompt="Giải thích MA(7), MA(25) và MA(99) theo cách dễ hiểu.">Đọc đường MA</button><button type="button" data-chat-prompt="RSI và ATR là gì? Nên đọc chúng cùng biểu đồ nến như thế nào?">RSI &amp; ATR</button><button type="button" data-chat-prompt="Hãy giải thích kết quả dự báo Kronos trong dữ liệu ngữ cảnh. Nếu chưa có, hướng dẫn tôi cách tạo dự báo.">Giải thích dự báo</button></div>
+        <label class="chat-context"><input id="chat-use-context" type="checkbox"><span>Gửi tóm tắt dữ liệu tới <span id="chat-provider-label">Gemini</span><small id="chat-context-label">Chưa chọn dữ liệu</small></span></label>
+        <p id="chat-error" class="chat-error" role="alert" hidden></p>
+        <form class="chat-form" id="chat-form"><label class="sr-only" for="chat-input">Câu hỏi dành cho trợ lý</label><textarea id="chat-input" rows="2" maxlength="2000" placeholder="Bạn muốn tìm hiểu điều gì?" required></textarea><button id="chat-send" type="submit" aria-label="Gửi câu hỏi"><svg class="ui-icon" aria-hidden="true"><use href="{{ url_for('static', filename='icons.svg') }}#send"></use></svg></button></form>
+        <p class="chat-footnote">AI có thể nhầm. Hãy đối chiếu dữ liệu trước khi quyết định.</p>
+    </section>
+
+    <script src="{{ url_for('static', filename='dashboard.js', v='chart4') }}"></script>
+    <script src="{{ url_for('static', filename='chatbot.js') }}" defer></script>
+</body>
+</html>

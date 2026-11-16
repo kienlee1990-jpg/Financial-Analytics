@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" fill="none">
+  <title>Kronos — Chữ K vàng trên nền xanh</title>
+  <rect width="96" height="96" rx="22" fill="#18764F" />
+  <rect x="1" y="1" width="94" height="94" rx="21" stroke="#FFFFFF" stroke-opacity=".12" />
+  <path d="M25 23H38V44L57 23H73L51 47L73 73H57L38 51V73H25V23Z" fill="#F6D56F" transform="translate(-1 0)" />
+</svg>

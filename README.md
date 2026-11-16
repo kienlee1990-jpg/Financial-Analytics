@@ -1,181 +1,233 @@
 <div align="center">
-  <h2><b>Kronos: A Foundation Model for the Language of Financial Markets </b></h2>
+  <h2><b>Kronos: Mô hình nền tảng cho ngôn ngữ của thị trường tài chính</b></h2>
 </div>
 
-
 <div align="center">
-
-</a> 
-<a href="https://huggingface.co/NeoQuasar"> 
-<img src="https://img.shields.io/badge/🤗-Hugging_Face-yellow" alt="Hugging Face"> 
-</a> 
-<a href="https://shiyu-coder.github.io/Kronos-demo/"> <img src="https://img.shields.io/badge/🚀-Live_Demo-brightgreen" alt="Live Demo"> </a>
-<a href="https://github.com/shiyu-coder/Kronos/graphs/commit-activity"> 
-<img src="https://img.shields.io/github/last-commit/shiyu-coder/Kronos?color=blue" alt="Last Commit"> 
-</a> 
-<a href="https://github.com/shiyu-coder/Kronos/stargazers"> 
-<img src="https://img.shields.io/github/stars/shiyu-coder/Kronos?color=lightblue" alt="GitHub Stars"> 
-</a> 
-<a href="https://github.com/shiyu-coder/Kronos/network/members"> 
-<img src="https://img.shields.io/github/forks/shiyu-coder/Kronos?color=yellow" alt="GitHub Forks"> 
-</a> 
-<a href="./LICENSE"> 
-<img src="https://img.shields.io/github/license/shiyu-coder/Kronos?color=green" alt="License"> 
+<a href="https://huggingface.co/NeoQuasar">
+<img src="https://img.shields.io/badge/🤗-Hugging_Face-yellow" alt="Hugging Face">
 </a>
-
+<a href="https://shiyu-coder.github.io/Kronos-demo/"><img src="https://img.shields.io/badge/🚀-Bản_demo-brightgreen" alt="Bản demo"></a>
+<a href="https://github.com/shiyu-coder/Kronos/graphs/commit-activity">
+<img src="https://img.shields.io/github/last-commit/shiyu-coder/Kronos?color=blue" alt="Commit gần nhất">
+</a>
+<a href="https://github.com/shiyu-coder/Kronos/stargazers">
+<img src="https://img.shields.io/github/stars/shiyu-coder/Kronos?color=lightblue" alt="Số lượt sao GitHub">
+</a>
+<a href="https://github.com/shiyu-coder/Kronos/network/members">
+<img src="https://img.shields.io/github/forks/shiyu-coder/Kronos?color=yellow" alt="Số lượt fork GitHub">
+</a>
+<a href="./LICENSE">
+<img src="https://img.shields.io/github/license/shiyu-coder/Kronos?color=green" alt="Giấy phép">
+</a>
 </div>
 
 <div align="center">
-  <!-- Keep these links. Translations will automatically update with the README. -->
-  <a href="https://zdoc.app/de/shiyu-coder/Kronos">Deutsch</a> | 
-  <a href="https://zdoc.app/es/shiyu-coder/Kronos">Español</a> | 
-  <a href="https://zdoc.app/fr/shiyu-coder/Kronos">Français</a> | 
-  <a href="https://zdoc.app/ja/shiyu-coder/Kronos">日本語</a> | 
-  <a href="https://zdoc.app/ko/shiyu-coder/Kronos">한국어</a> | 
-  <a href="https://zdoc.app/pt/shiyu-coder/Kronos">Português</a> | 
-  <a href="https://zdoc.app/ru/shiyu-coder/Kronos">Русский</a> | 
-  <a href="https://zdoc.app/zh/shiyu-coder/Kronos">中文</a>
+  <!-- Giữ các liên kết này. Bản dịch sẽ được cập nhật tự động theo README. -->
+  <a href="https://zdoc.app/de/shiyu-coder/Kronos">Tiếng Đức</a> |
+  <a href="https://zdoc.app/es/shiyu-coder/Kronos">Tiếng Tây Ban Nha</a> |
+  <a href="https://zdoc.app/fr/shiyu-coder/Kronos">Tiếng Pháp</a> |
+  <a href="https://zdoc.app/ja/shiyu-coder/Kronos">Tiếng Nhật</a> |
+  <a href="https://zdoc.app/ko/shiyu-coder/Kronos">Tiếng Hàn</a> |
+  <a href="https://zdoc.app/pt/shiyu-coder/Kronos">Tiếng Bồ Đào Nha</a> |
+  <a href="https://zdoc.app/ru/shiyu-coder/Kronos">Tiếng Nga</a> |
+  <a href="https://zdoc.app/zh/shiyu-coder/Kronos">Tiếng Trung</a>
 </div>
 
 <p align="center">
-
-<img src="./figures/logo.png" width="100">
-
+<img src="./figures/logo.png" width="100" alt="Biểu trưng Kronos">
 </p>
 
-> Kronos is the **first open-source foundation model** for financial candlesticks (K-lines), 
-> trained on data from over **45 global exchanges**.
+> Kronos là **mô hình nền tảng mã nguồn mở đầu tiên** dành cho dữ liệu nến tài chính, được huấn luyện trên dữ liệu từ hơn **45 sàn giao dịch toàn cầu**.
 
+## 📰 Tin tức
 
-</div>
+- 🚩 **[2025.11.10]** Kronos được chấp nhận tại hội nghị AAAI 2026.
+- 🚩 **[2025.08.17]** Đã phát hành các tập lệnh tinh chỉnh mô hình để bạn điều chỉnh Kronos theo tác vụ của mình.
+- 🚩 **[2025.08.02]** Bài nghiên cứu của chúng tôi đã được đăng trên [arXiv](https://arxiv.org/abs/2508.02739).
 
-## 📰 News
-*   🚩 **[2025.11.10]** Kronos has been accpeted by AAAI 2026.
-*   🚩 **[2025.08.17]** We have released the scripts for fine-tuning! Check them out to adapt Kronos to your own tasks.
-*   🚩 **[2025.08.02]** Our paper is now available on [arXiv](https://arxiv.org/abs/2508.02739)!
+## 📜 Giới thiệu
 
-<p align="center">
+**Kronos** là một họ mô hình nền tảng decoder-only, được huấn luyện chuyên biệt trên “ngôn ngữ” của thị trường tài chính: các chuỗi nến. Khác với những mô hình dự báo chuỗi thời gian đa dụng, Kronos được thiết kế để xử lý đặc tính nhiễu cao và riêng biệt của dữ liệu tài chính. Mô hình sử dụng quy trình gồm hai giai đoạn:
 
-## 📜 Introduction
-
-**Kronos** is a family of decoder-only foundation models, pre-trained specifically for the "language" of financial markets—K-line sequences. Unlike general-purpose TSFMs, Kronos is designed to handle the unique, high-noise characteristics of financial data. It leverages a novel two-stage framework: 
-1. A specialized tokenizer first quantizes continuous, multi-dimensional K-line data (OHLCV) into **hierarchical discrete tokens**. 
-2. A large, autoregressive Transformer is then pre-trained on these tokens, enabling it to serve as a unified model for diverse quantitative tasks.
+1. Bộ mã hóa chuyên biệt lượng tử hóa dữ liệu nến liên tục, đa chiều (OHLCV) thành **các token rời rạc có cấu trúc phân cấp**.
+2. Transformer tự hồi quy quy mô lớn được huấn luyện trước trên các token đó, tạo thành một mô hình thống nhất cho nhiều tác vụ định lượng.
 
 <p align="center">
-    <img src="figures/overview.png" alt="" align="center" width="700px" />
+    <img src="figures/overview.png" alt="Tổng quan kiến trúc Kronos" align="center" width="700px" />
 </p>
 
-## ✨ Live Demo 
-We have set up a live demo to visualize Kronos's forecasting results. The webpage showcases a forecast for the **BTC/USDT** trading pair over the next 24 hours. 
+## ✨ Bản demo trực tuyến
 
-**👉 [Access the Live Demo Here](https://shiyu-coder.github.io/Kronos-demo/)** 
+Bản demo trực tuyến minh họa kết quả dự báo của Kronos. Trang web hiện trình bày dự báo cho cặp giao dịch **BTC/USDT** trong 24 giờ tiếp theo.
 
-## 📦 Model Zoo 
-We release a family of pre-trained models with varying capacities to suit different computational and application needs. All models are readily accessible from the Hugging Face Hub.
+**👉 [Mở bản demo tại đây](https://shiyu-coder.github.io/Kronos-demo/)**
 
-| Model        | Tokenizer                                                                       | Context length | Params  | Open-source                                                               |
-|--------------|---------------------------------------------------------------------------------| -------------- | ------ |---------------------------------------------------------------------------|
-| Kronos-mini  | [Kronos-Tokenizer-2k](https://huggingface.co/NeoQuasar/Kronos-Tokenizer-2k)     | 2048           | 4.1M   | ✅ [NeoQuasar/Kronos-mini](https://huggingface.co/NeoQuasar/Kronos-mini)  |
-| Kronos-small | [Kronos-Tokenizer-base](https://huggingface.co/NeoQuasar/Kronos-Tokenizer-base) | 512            | 24.7M  | ✅ [NeoQuasar/Kronos-small](https://huggingface.co/NeoQuasar/Kronos-small) |
-| Kronos-base  | [Kronos-Tokenizer-base](https://huggingface.co/NeoQuasar/Kronos-Tokenizer-base) | 512            | 102.3M | ✅ [NeoQuasar/Kronos-base](https://huggingface.co/NeoQuasar/Kronos-base)   |
-| Kronos-large | [Kronos-Tokenizer-base](https://huggingface.co/NeoQuasar/Kronos-Tokenizer-base) | 512            | 499.2M | ❌                                                                         |
+## 📦 Danh sách mô hình
 
+Kronos có nhiều kích thước mô hình để phù hợp với các nhu cầu tính toán và ứng dụng khác nhau. Các mô hình được cung cấp trên Hugging Face Hub.
 
-## 🚀 Getting Started
+| Mô hình | Bộ mã hóa (Tokenizer) | Độ dài ngữ cảnh | Số tham số | Mã nguồn mở |
+|---|---|---:|---:|---|
+| Kronos-mini | [Kronos-Tokenizer-2k](https://huggingface.co/NeoQuasar/Kronos-Tokenizer-2k) | 2048 | 4.1M | ✅ [NeoQuasar/Kronos-mini](https://huggingface.co/NeoQuasar/Kronos-mini) |
+| Kronos-small | [Kronos-Tokenizer-base](https://huggingface.co/NeoQuasar/Kronos-Tokenizer-base) | 512 | 24.7M | ✅ [NeoQuasar/Kronos-small](https://huggingface.co/NeoQuasar/Kronos-small) |
+| Kronos-base | [Kronos-Tokenizer-base](https://huggingface.co/NeoQuasar/Kronos-Tokenizer-base) | 512 | 102.3M | ✅ [NeoQuasar/Kronos-base](https://huggingface.co/NeoQuasar/Kronos-base) |
+| Kronos-large | [Kronos-Tokenizer-base](https://huggingface.co/NeoQuasar/Kronos-Tokenizer-base) | 512 | 499.2M | ❌ |
 
-### Installation
+## 🚀 Bắt đầu
 
-1. Install Python 3.10+, and then install the dependencies:
+### Cấu trúc ứng dụng
+
+Mã ứng dụng hiện nằm trong `app/`: API ở `app/api.py`, xử lý dữ liệu/biểu đồ/chatbot ở `app/services/`, giao diện ở `app/templates/` và `app/static/`. Thư mục `webui/` giữ các tệp chuyển tiếp để lệnh cũ vẫn dùng được. Xem [bản đồ cấu trúc](docs/STRUCTURE.md) và [điểm vào WSGI](deploy/README.md).
+
+### Cài đặt thư viện
+
+1. Cài Python 3.10 trở lên.
+2. Cài các thư viện cần thiết:
 
 ```shell
 pip install -r requirements.txt
 ```
 
-### 📈 Making Forecasts
+### Chạy giao diện web của dự án
 
-Forecasting with Kronos is straightforward using the `KronosPredictor` class. It handles data preprocessing, normalization, prediction, and inverse normalization, allowing you to get from raw data to forecasts in just a few lines of code.
+Tại thư mục gốc dự án, chạy:
 
-**Important Note**: The `max_context` for `Kronos-small` and `Kronos-base` is **512**. This is the maximum sequence length the model can process. For optimal performance, it is recommended that your input data length (i.e., `lookback`) does not exceed this limit. The `KronosPredictor` will automatically handle truncation for longer contexts.
+```shell
+./start
+```
 
-Here is a step-by-step guide to making your first forecast.
+Trên macOS, bạn cũng có thể chạy `python3 start`. Trình khởi chạy dùng môi trường `.venv` nếu có và khởi động ứng dụng bằng Waitress. Mở [http://localhost:7070](http://localhost:7070) nếu trình duyệt không tự mở. Giữ Terminal đang chạy ứng dụng; nhấn **Ctrl+C** để dừng máy chủ.
 
-#### 1. Load the Tokenizer and Model
+### Tính năng của giao diện web
 
-First, load a pre-trained Kronos model and its corresponding tokenizer from the Hugging Face Hub.
+- Chuyển giữa phân tích **Coin** và **Chứng khoán**.
+- Lấy dữ liệu coin từ Binance, dữ liệu cổ phiếu Việt Nam qua VNStock hoặc tải tệp CSV/Feather.
+- Xem biểu đồ nến, đường trung bình động và thông tin OHLC khi rê chuột lên nến; có thể đổi khung thời gian hiển thị.
+- Xem tóm tắt dự báo, phần giải thích hướng dự báo, kịch bản Futures tham khảo và kết quả đối chiếu khi có dữ liệu thực tế.
+- Chọn mô hình và thiết bị chạy: CPU, CUDA hoặc MPS trên máy Mac dùng Apple Silicon.
+
+Dữ liệu mới lấy từ Binance/VNStock chỉ dùng tạm trong bộ nhớ để xem chỉ báo và dự báo, không tự lưu CSV hoặc kết quả JSON. Ứng dụng yêu cầu giải phóng dữ liệu khi đóng trang; dữ liệu tạm cũng hết hạn sau 2 giờ không dùng hoặc mất khi khởi động lại máy chủ. Các tệp dữ liệu có sẵn vẫn dùng được.
+
+### Quy trình sử dụng
+
+1. Chọn tab **Coin** hoặc **Chứng khoán**.
+2. Lấy dữ liệu từ nguồn trực tuyến hoặc tải tệp lên.
+3. Chọn mô hình và thiết bị, sau đó bấm **Tải mô hình**.
+4. Chọn khoảng dữ liệu lịch sử. Ứng dụng hiện dùng 400 điểm lịch sử và dự báo 120 điểm tiếp theo.
+5. Bấm **Bắt đầu dự báo** để xem biểu đồ và phần diễn giải.
+
+### Tham số dự báo trong giao diện
+
+- **Temperature (T), 0.1–2.0:** điều chỉnh độ ngẫu nhiên; giá trị thấp thường ổn định hơn, giá trị cao có thể tạo kết quả đa dạng hơn.
+- **Top-p, 0.1–1.0:** điều chỉnh số khả năng được cân nhắc khi tạo dự báo.
+- **Số lần lấy mẫu, 1–5:** tạo nhiều lượt dự báo để tổng hợp kết quả; có thể bắt đầu với 1–3 lượt.
+
+Các tham số này ảnh hưởng cách mô hình tạo kết quả, nhưng không đảm bảo dự báo chính xác.
+
+### Định dạng tệp dữ liệu
+
+Tệp CSV hoặc Feather cần có các cột giá `open`, `high`, `low`, `close`. Các cột `volume`, `amount` và mốc thời gian (`timestamps`, `timestamp` hoặc `date`) có thể được dùng nếu có. Hãy đảm bảo dữ liệu đủ dài cho khoảng lịch sử đã chọn.
+
+### Đọc kết quả và lưu ý
+
+- Phần tóm tắt hiển thị giá tham chiếu, giá dự báo cuối kỳ, mức thay đổi và khoảng giá dự báo.
+- Phần giải thích nêu bối cảnh dữ liệu gần đây, mức thay đổi được dự báo và các giới hạn của mô hình.
+- Kịch bản Futures được mô phỏng từ dự báo và ATR của dữ liệu Spot; đây không phải khuyến nghị đặt lệnh. Kết quả không tính funding, giá Mark, đòn bẩy, phí, thanh khoản hoặc mức chịu lỗ của người dùng.
+- Nếu có dữ liệu thực tế tương ứng, phần đối chiếu hiển thị MAE, RMSE, MAPE và bảng so sánh.
+
+### Khắc phục sự cố giao diện web
+
+- Nếu không mở được trang, kiểm tra Terminal xem máy chủ còn chạy không rồi mở lại [http://localhost:7070](http://localhost:7070).
+- Nếu cổng 7070 đang được chương trình khác sử dụng, hãy dừng chương trình đó rồi chạy lại ứng dụng.
+- Nếu thiếu thư viện, khởi chạy lại bằng `./start` và làm theo thông báo trong Terminal. Bộ thư viện đầy đủ nằm ở `requirements/web.txt`; `requirements.txt` và `webui/requirements.txt` chuyển tiếp tới cùng bộ này.
+- Nếu không tải được mô hình, kiểm tra kết nối Internet; có thể chọn CPU nếu CUDA hoặc MPS không khả dụng.
+- Nếu dữ liệu không được nhận diện, kiểm tra tên cột, định dạng thời gian và các cột giá bắt buộc.
+
+## 📈 Tạo dự báo bằng Python
+
+Có thể tạo dự báo bằng lớp `KronosPredictor`. Lớp này xử lý tiền xử lý dữ liệu, chuẩn hóa, dự báo và chuyển kết quả về thang đo ban đầu, giúp tạo dự báo từ dữ liệu thô chỉ với một số dòng mã.
+
+> **Lưu ý quan trọng:** `max_context` của `Kronos-small` và `Kronos-base` là **512**, tức độ dài chuỗi tối đa mà mô hình có thể xử lý. Để đạt hiệu quả tốt, nên giữ độ dài dữ liệu đầu vào (`lookback`) không vượt quá giới hạn này. `KronosPredictor` sẽ tự cắt bớt phần vượt quá giới hạn.
+
+Các bước dưới đây hướng dẫn tạo dự báo đầu tiên.
+
+### 1. Tải bộ mã hóa và mô hình
+
+Tải mô hình Kronos đã huấn luyện trước cùng bộ mã hóa tương ứng từ Hugging Face Hub:
 
 ```python
 from model import Kronos, KronosTokenizer, KronosPredictor
 
-# Load from Hugging Face Hub
+# Tải mô hình và tokenizer từ Hugging Face Hub
 tokenizer = KronosTokenizer.from_pretrained("NeoQuasar/Kronos-Tokenizer-base")
 model = Kronos.from_pretrained("NeoQuasar/Kronos-small")
 ```
 
-#### 2. Instantiate the Predictor
+### 2. Khởi tạo bộ dự báo
 
-Create an instance of `KronosPredictor`, passing the model, tokenizer, and desired device.
+Tạo đối tượng `KronosPredictor`, truyền vào mô hình, bộ mã hóa và thiết bị muốn sử dụng:
 
 ```python
-# Initialize the predictor
+# Khởi tạo bộ dự báo
 predictor = KronosPredictor(model, tokenizer, max_context=512)
 ```
 
-#### 3. Prepare Input Data
+### 3. Chuẩn bị dữ liệu đầu vào
 
-The `predict` method requires three main inputs:
--   `df`: A pandas DataFrame containing the historical K-line data. It must include columns `['open', 'high', 'low', 'close']`. `volume` and `amount` are optional.
--   `x_timestamp`: A pandas Series of timestamps corresponding to the historical data in `df`.
--   `y_timestamp`: A pandas Series of timestamps for the future periods you want to predict.
+Phương thức `predict` cần ba đầu vào chính:
+
+- `df`: DataFrame của pandas chứa dữ liệu nến lịch sử. Cần có các cột `['open', 'high', 'low', 'close']`. `volume` và `amount` là tùy chọn.
+- `x_timestamp`: Series của pandas chứa mốc thời gian tương ứng với dữ liệu lịch sử trong `df`.
+- `y_timestamp`: Series của pandas chứa các mốc thời gian tương lai cần dự báo.
 
 ```python
 import pandas as pd
 
-# Load your data
+# Đọc dữ liệu
 df = pd.read_csv("./data/XSHG_5min_600977.csv")
 df['timestamps'] = pd.to_datetime(df['timestamps'])
 
-# Define context window and prediction length
+# Chọn khoảng dữ liệu lịch sử và số bước dự báo
 lookback = 400
 pred_len = 120
 
-# Prepare inputs for the predictor
+# Chuẩn bị dữ liệu cho bộ dự báo
 x_df = df.loc[:lookback-1, ['open', 'high', 'low', 'close', 'volume', 'amount']]
 x_timestamp = df.loc[:lookback-1, 'timestamps']
 y_timestamp = df.loc[lookback:lookback+pred_len-1, 'timestamps']
 ```
 
-#### 4. Generate Forecasts 
+### 4. Tạo dự báo
 
-Call the `predict` method to generate forecasts. You can control the sampling process with parameters like `T`, `top_p`, and `sample_count` for probabilistic forecasting.
+Gọi phương thức `predict` để tạo dự báo. Có thể điều chỉnh quá trình lấy mẫu bằng các tham số `T`, `top_p` và `sample_count`.
 
 ```python
-# Generate predictions
+# Tạo dự báo
 pred_df = predictor.predict(
     df=x_df,
     x_timestamp=x_timestamp,
     y_timestamp=y_timestamp,
     pred_len=pred_len,
-    T=1.0,          # Temperature for sampling
-    top_p=0.9,      # Nucleus sampling probability
-    sample_count=1  # Number of forecast paths to generate and average
+    T=1.0,          # Temperature (độ ngẫu nhiên khi lấy mẫu)
+    top_p=0.9,      # Xác suất lấy mẫu nucleus
+    sample_count=1  # Số đường dự báo được tạo và lấy trung bình
 )
 
-print("Forecasted Data Head:")
+print("Các dòng đầu của dữ liệu dự báo:")
 print(pred_df.head())
 ```
 
-The `predict` method returns a pandas DataFrame containing the forecasted values for `open`, `high`, `low`, `close`, `volume`, and `amount`, indexed by the `y_timestamp` you provided.
+Phương thức `predict` trả về một DataFrame của pandas chứa các giá trị dự báo `open`, `high`, `low`, `close`, `volume` và `amount`, được đánh chỉ mục theo `y_timestamp` đã cung cấp.
 
-For efficient processing of multiple time series, Kronos provides a `predict_batch` method that enables parallel prediction on multiple datasets simultaneously. This is particularly useful when you need to forecast multiple assets or time periods at once.
+Để xử lý nhiều chuỗi thời gian hiệu quả, Kronos có phương thức `predict_batch`, cho phép dự báo song song trên nhiều bộ dữ liệu. Tính năng này hữu ích khi cần dự báo nhiều tài sản hoặc nhiều khoảng thời gian.
 
 ```python
-# Prepare multiple datasets for batch prediction
-df_list = [df1, df2, df3]  # List of DataFrames
-x_timestamp_list = [x_ts1, x_ts2, x_ts3]  # List of historical timestamps
-y_timestamp_list = [y_ts1, y_ts2, y_ts3]  # List of future timestamps
+# Chuẩn bị nhiều bộ dữ liệu để dự báo theo lô
+df_list = [df1, df2, df3]  # Danh sách DataFrame
+x_timestamp_list = [x_ts1, x_ts2, x_ts3]  # Danh sách mốc thời gian lịch sử
+y_timestamp_list = [y_ts1, y_ts2, y_ts3]  # Danh sách mốc thời gian tương lai
 
-# Generate batch predictions
+# Tạo dự báo theo lô
 pred_df_list = predictor.predict_batch(
     df_list=df_list,
     x_timestamp_list=x_timestamp_list,
@@ -187,151 +239,172 @@ pred_df_list = predictor.predict_batch(
     verbose=True
 )
 
-# pred_df_list contains prediction results in the same order as input
+# Kết quả được trả về theo đúng thứ tự các bộ dữ liệu đầu vào
 for i, pred_df in enumerate(pred_df_list):
-    print(f"Predictions for series {i}:")
+    print(f"Kết quả dự báo cho chuỗi {i}:")
     print(pred_df.head())
 ```
 
-**Important Requirements for Batch Prediction:**
-- All series must have the same historical length (lookback window)
-- All series must have the same prediction length (`pred_len`)
-- Each DataFrame must contain the required columns: `['open', 'high', 'low', 'close']`
-- `volume` and `amount` columns are optional and will be filled with zeros if missing
+**Yêu cầu đối với dự báo theo lô:**
 
-The `predict_batch` method leverages GPU parallelism for efficient processing and automatically handles normalization and denormalization for each series independently.
+- Mọi chuỗi phải có cùng độ dài lịch sử (cửa sổ `lookback`).
+- Mọi chuỗi phải có cùng độ dài dự báo (`pred_len`).
+- Mỗi DataFrame phải có các cột bắt buộc `['open', 'high', 'low', 'close']`.
+- Nếu thiếu `volume` hoặc `amount`, các cột này sẽ được điền bằng số 0.
 
-#### 5. Example and Visualization
+`predict_batch` tận dụng khả năng xử lý song song của GPU và tự chuẩn hóa, rồi chuyển dữ liệu về thang đo ban đầu cho từng chuỗi.
 
-For a complete, runnable script that includes data loading, prediction, and plotting, please see [`examples/prediction_example.py`](examples/prediction_example.py).
+### 5. Ví dụ và biểu đồ
 
-Running this script will generate a plot comparing the ground truth data against the model's forecast, similar to the one shown below:
+Xem tập lệnh hoàn chỉnh gồm đọc dữ liệu, tạo dự báo và vẽ biểu đồ tại [`examples/prediction_example.py`](examples/prediction_example.py).
+
+Chạy tập lệnh sẽ tạo biểu đồ so sánh dữ liệu thực tế với dự báo của mô hình, tương tự hình dưới đây:
 
 <p align="center">
-    <img src="figures/prediction_example.png" alt="Forecast Example" align="center" width="600px" />
+    <img src="figures/prediction_example.png" alt="Ví dụ biểu đồ dự báo" align="center" width="600px" />
 </p>
 
-Additionally, we provide a script that makes predictions without Volume and Amount data, which can be found in [`examples/prediction_wo_vol_example.py`](examples/prediction_wo_vol_example.py).
+Ngoài ra còn có tập lệnh tạo dự báo khi không có dữ liệu Volume và Amount: [`examples/prediction_wo_vol_example.py`](examples/prediction_wo_vol_example.py).
 
+## 🔧 Tinh chỉnh mô hình trên dữ liệu riêng (ví dụ thị trường cổ phiếu Trung Quốc)
 
-## 🔧 Finetuning on Your Own Data (A-Share Market Example)
+Dự án cung cấp quy trình tinh chỉnh Kronos trên bộ dữ liệu riêng. Ví dụ dưới đây dùng [Qlib](https://github.com/microsoft/qlib) để chuẩn bị dữ liệu thị trường cổ phiếu hạng A của Trung Quốc và chạy kiểm thử chiến lược đơn giản.
 
-We provide a complete pipeline for finetuning Kronos on your own datasets. As an example, we demonstrate how to use [Qlib](https://github.com/microsoft/qlib) to prepare data from the Chinese A-share market and conduct a simple backtest.
+> **Miễn trừ trách nhiệm:** Quy trình này chỉ nhằm minh họa cách tinh chỉnh mô hình. Đây là ví dụ đơn giản, chưa phải hệ thống giao dịch định lượng sẵn sàng cho môi trường thực tế. Một chiến lược định lượng vững chắc cần các kỹ thuật phức tạp hơn, chẳng hạn tối ưu hóa danh mục và trung hòa các yếu tố rủi ro, để đạt lợi nhuận vượt trội ổn định.
 
-> **Disclaimer:** This pipeline is intended as a demonstration to illustrate the finetuning process. It is a simplified example and not a production-ready quantitative trading system. A robust quantitative strategy requires more sophisticated techniques, such as portfolio optimization and risk factor neutralization, to achieve stable alpha.
+Quy trình tinh chỉnh gồm bốn bước chính:
 
-The finetuning process is divided into four main steps:
+1. **Cấu hình:** Thiết lập đường dẫn và siêu tham số.
+2. **Chuẩn bị dữ liệu:** Dùng Qlib để xử lý và chia dữ liệu.
+3. **Tinh chỉnh mô hình:** Tinh chỉnh Tokenizer và Predictor.
+4. **Kiểm thử chiến lược:** Đánh giá hiệu quả của mô hình đã tinh chỉnh.
 
-1.  **Configuration**: Set up paths and hyperparameters.
-2.  **Data Preparation**: Process and split your data using Qlib.
-3.  **Model Finetuning**: Finetune the Tokenizer and the Predictor models.
-4.  **Backtesting**: Evaluate the finetuned model's performance.
+### Điều kiện cần
 
-### Prerequisites
+1. Cài đặt các thư viện trong `requirements.txt`.
+2. Quy trình này cần `qlib`. Cài đặt bằng lệnh:
 
-1.  First, ensure you have all dependencies from `requirements.txt` installed.
-2.  This pipeline relies on `qlib`. Please install it:
-    ```shell
-      pip install pyqlib
-    ```
-3.  You will need to prepare your Qlib data. Follow the [official Qlib guide](https://github.com/microsoft/qlib) to download and set up your data locally. The example scripts assume you are using daily frequency data.
+   ```shell
+   pip install pyqlib
+   ```
 
-### Step 1: Configure Your Experiment
+3. Chuẩn bị dữ liệu Qlib. Làm theo [hướng dẫn chính thức của Qlib](https://github.com/microsoft/qlib) để tải và thiết lập dữ liệu trên máy. Các tập lệnh ví dụ giả định dữ liệu có tần suất ngày.
 
-All settings for data, training, and model paths are centralized in `finetune/config.py`. Before running any scripts, please **modify the following paths** according to your environment:
+### Bước 1: Cấu hình thử nghiệm
 
-*   `qlib_data_path`: Path to your local Qlib data directory.
-*   `dataset_path`: Directory where the processed train/validation/test pickle files will be saved.
-*   `save_path`: Base directory for saving model checkpoints.
-*   `backtest_result_path`: Directory for saving backtesting results.
-*   `pretrained_tokenizer_path` and `pretrained_predictor_path`: Paths to the pre-trained models you want to start from (can be local paths or Hugging Face model names).
+Các thiết lập về dữ liệu, huấn luyện và đường dẫn mô hình nằm trong `finetune/config.py`. Trước khi chạy tập lệnh, hãy chỉnh các đường dẫn sau cho phù hợp với máy của bạn:
 
-You can also adjust other parameters like `instrument`, `train_time_range`, `epochs`, and `batch_size` to fit your specific task. If you don't use [Comet.ml](https://www.comet.com/), set `use_comet = False`.
+- `qlib_data_path`: Thư mục dữ liệu Qlib trên máy.
+- `dataset_path`: Thư mục lưu các tệp pickle đã xử lý dùng cho tập huấn luyện, xác thực và kiểm thử.
+- `save_path`: Thư mục gốc lưu các checkpoint của mô hình.
+- `backtest_result_path`: Thư mục lưu kết quả kiểm thử chiến lược.
+- `pretrained_tokenizer_path` và `pretrained_predictor_path`: Đường dẫn tới mô hình đã huấn luyện trước muốn dùng làm điểm bắt đầu; có thể là đường dẫn cục bộ hoặc tên mô hình trên Hugging Face.
 
-### Step 2: Prepare the Dataset
+Bạn cũng có thể điều chỉnh các tham số như `instrument`, `train_time_range`, `epochs` và `batch_size`. Nếu không dùng [Comet.ml](https://www.comet.com/), hãy đặt `use_comet = False`.
 
-Run the data preprocessing script. This script will load raw market data from your Qlib directory, process it, split it into training, validation, and test sets, and save them as pickle files.
+### Bước 2: Chuẩn bị bộ dữ liệu
+
+Chạy tập lệnh tiền xử lý. Tập lệnh sẽ đọc dữ liệu thị trường thô từ thư mục Qlib, xử lý và chia thành tập huấn luyện, xác thực, kiểm thử, rồi lưu thành các tệp pickle.
 
 ```shell
 python finetune/qlib_data_preprocess.py
 ```
 
-After running, you will find `train_data.pkl`, `val_data.pkl`, and `test_data.pkl` in the directory specified by `dataset_path` in your config.
+Sau khi chạy xong, các tệp `train_data.pkl`, `val_data.pkl` và `test_data.pkl` sẽ nằm trong thư mục `dataset_path` đã cấu hình.
 
-### Step 3: Run the Finetuning
+### Bước 3: Tinh chỉnh mô hình
 
-The finetuning process consists of two stages: finetuning the tokenizer and then the predictor. Both training scripts are designed for multi-GPU training using `torchrun`.
+Quy trình tinh chỉnh gồm hai giai đoạn: tinh chỉnh Tokenizer, sau đó tinh chỉnh Predictor. Cả hai tập lệnh huấn luyện đều hỗ trợ huấn luyện đa GPU qua `torchrun`.
 
-#### 3.1 Finetune the Tokenizer
+#### 3.1 Tinh chỉnh Tokenizer
 
-This step adjusts the tokenizer to the data distribution of your specific domain.
+Bước này điều chỉnh Tokenizer cho phù hợp với phân phối dữ liệu của lĩnh vực cụ thể.
 
 ```shell
-# Replace NUM_GPUS with the number of GPUs you want to use (e.g., 2)
+# Thay NUM_GPUS bằng số GPU muốn sử dụng, ví dụ 2
 torchrun --standalone --nproc_per_node=NUM_GPUS finetune/train_tokenizer.py
 ```
 
-The best tokenizer checkpoint will be saved to the path configured in `config.py` (derived from `save_path` and `tokenizer_save_folder_name`).
+Checkpoint Tokenizer tốt nhất sẽ được lưu tại đường dẫn cấu hình trong `config.py`, được tạo từ `save_path` và `tokenizer_save_folder_name`.
 
-#### 3.2 Finetune the Predictor
+#### 3.2 Tinh chỉnh Predictor
 
-This step finetunes the main Kronos model for the forecasting task.
+Bước này tinh chỉnh mô hình Kronos chính cho tác vụ dự báo.
 
 ```shell
-# Replace NUM_GPUS with the number of GPUs you want to use (e.g., 2)
+# Thay NUM_GPUS bằng số GPU muốn sử dụng, ví dụ 2
 torchrun --standalone --nproc_per_node=NUM_GPUS finetune/train_predictor.py
 ```
 
-The best predictor checkpoint will be saved to the path configured in `config.py`.
+Checkpoint Predictor tốt nhất sẽ được lưu tại đường dẫn đã cấu hình trong `config.py`.
 
-### Step 4: Evaluate with Backtesting
+### Bước 4: Đánh giá bằng kiểm thử chiến lược
 
-Finally, run the backtesting script to evaluate your finetuned model. This script loads the models, performs inference on the test set, generates prediction signals (e.g., forecasted price change), and runs a simple top-K strategy backtest.
+Cuối cùng, chạy tập lệnh kiểm thử để đánh giá mô hình đã tinh chỉnh. Tập lệnh tải mô hình, suy luận trên tập kiểm thử, tạo tín hiệu dự báo (ví dụ mức thay đổi giá) và chạy một chiến lược top-K đơn giản.
 
 ```shell
-# Specify the GPU for inference
+# Chọn GPU để suy luận
 python finetune/qlib_test.py --device cuda:0
 ```
 
-The script will output a detailed performance analysis in your console and generate a plot showing the cumulative return curves of your strategy against the benchmark, similar to the one below:
+Tập lệnh sẽ in báo cáo hiệu quả chi tiết ra Terminal và tạo biểu đồ so sánh đường lợi nhuận tích lũy của chiến lược với chỉ số tham chiếu, tương tự hình dưới đây:
 
 <p align="center">
-    <img src="figures/backtest_result_example.png" alt="Backtest Example" align="center" width="700px" />
+    <img src="figures/backtest_result_example.png" alt="Ví dụ kết quả kiểm thử chiến lược" align="center" width="700px" />
 </p>
 
-### 💡 From Demo to Production: Important Considerations
+### 💡 Từ bản minh họa đến ứng dụng thực tế
 
-*   **Raw Signals vs. Pure Alpha**: The signals generated by the model in this demo are raw predictions. In a real-world quantitative workflow, these signals would typically be fed into a portfolio optimization model. This model would apply constraints to neutralize exposure to common risk factors (e.g., market beta, style factors like size and value), thereby isolating the **"pure alpha"** and improving the strategy's robustness.
-*   **Data Handling**: The provided `QlibDataset` is an example. For different data sources or formats, you will need to adapt the data loading and preprocessing logic.
-*   **Strategy and Backtesting Complexity**: The simple top-K strategy used here is a basic starting point. Production-level strategies often incorporate more complex logic for portfolio construction, dynamic position sizing, and risk management (e.g., stop-loss/take-profit rules). Furthermore, a high-fidelity backtest should meticulously model transaction costs, slippage, and market impact to provide a more accurate estimate of real-world performance.
+- **Tín hiệu thô và alpha thuần:** Tín hiệu trong bản minh họa này là dự báo thô. Trong quy trình định lượng thực tế, tín hiệu thường được đưa vào mô hình tối ưu hóa danh mục. Mô hình này áp dụng các ràng buộc để trung hòa mức độ tiếp xúc với các yếu tố rủi ro phổ biến (ví dụ beta thị trường, quy mô và giá trị), qua đó tách phần **alpha thuần** và tăng độ vững chắc của chiến lược.
+- **Xử lý dữ liệu:** `QlibDataset` được cung cấp chỉ là ví dụ. Với nguồn hoặc định dạng dữ liệu khác, bạn cần điều chỉnh phần tải và tiền xử lý dữ liệu.
+- **Độ phức tạp của chiến lược và kiểm thử:** Chiến lược top-K đơn giản là điểm khởi đầu cơ bản. Chiến lược dùng thực tế thường có logic phức tạp hơn cho xây dựng danh mục, phân bổ quy mô vị thế linh hoạt và quản lý rủi ro (ví dụ mức cắt lỗ/chốt lời). Kiểm thử sát thực tế cũng cần mô hình hóa cẩn thận phí giao dịch, trượt giá và tác động lên thị trường.
 
-> **📝 AI-Generated Comments**: Please note that many of the code comments within the `finetune/` directory were generated by an AI assistant (Gemini 2.5 Pro) for explanatory purposes. While they aim to be helpful, they may contain inaccuracies. We recommend treating the code itself as the definitive source of logic.
+> **📝 Ghi chú do AI tạo:** Nhiều chú thích mã trong thư mục `finetune/` được tạo bởi trợ lý AI Gemini 2.5 Pro nhằm giải thích mã nguồn và có thể chưa chính xác. Hãy xem mã nguồn là căn cứ chính xác nhất về cách chương trình hoạt động.
 
-## 📖 Citation
+## 📖 Trích dẫn
 
-If you use Kronos in your research, we would appreciate a citation to our [paper](https://arxiv.org/abs/2508.02739):
+Nếu sử dụng Kronos trong nghiên cứu, vui lòng trích dẫn bài [nghiên cứu](https://arxiv.org/abs/2508.02739):
 
 ```
 @misc{shi2025kronos,
-      title={Kronos: A Foundation Model for the Language of Financial Markets}, 
+      title={Kronos: A Foundation Model for the Language of Financial Markets},
       author={Yu Shi and Zongliang Fu and Shuo Chen and Bohan Zhao and Wei Xu and Changshui Zhang and Jian Li},
       year={2025},
       eprint={2508.02739},
       archivePrefix={arXiv},
       primaryClass={q-fin.ST},
-      url={https://arxiv.org/abs/2508.02739}, 
+      url={https://arxiv.org/abs/2508.02739},
 }
 ```
 
-## 📜 License 
-This project is licensed under the [MIT License](./LICENSE).
+## 📜 Giấy phép
 
+Dự án được cấp phép theo [Giấy phép MIT](./LICENSE).
 
+## Chatbot Financial Analytics
 
+Nhấn **Hỏi trợ lý AI** ở góc dưới bên phải. Chatbot hỗ trợ **Gemini** và **OpenAI**; chọn nhà cung cấp trong `.env` ở thư mục gốc.
 
+Cấu hình Gemini (mặc định):
 
+```dotenv
+CHAT_PROVIDER=gemini
+GEMINI_API_KEY=khóa_của_bạn
+GEMINI_MODEL=gemini-3.1-flash-lite
+```
 
+Hoặc OpenAI:
 
+```dotenv
+CHAT_PROVIDER=openai
+OPENAI_API_KEY=khóa_của_bạn
+OPENAI_MODEL=gpt-4.1-mini
+```
 
+Cài thư viện bằng `pip install -r webui/requirements.txt`, chạy `./start`, mở chatbot và bấm **Kiểm tra kết nối lại** sau khi sửa `.env`. Cấu hình được đọc lại mỗi yêu cầu; khóa chỉ được dùng ở backend, không đưa vào HTML/JavaScript hay Git. Có thể đổi model theo quyền truy cập API của tài khoản.
 
+Tùy chọn **Gửi tóm tắt dữ liệu** mặc định tắt. Khi bật, backend tính tóm tắt OHLC, MA(7/25/99), RSI Wilder 14, ATR Wilder 14 và đính kèm tóm tắt dự báo hiện tại. Không gửi toàn bộ tệp lên dịch vụ AI.
 
+Hội thoại giữ trong bộ nhớ của trang, mất khi tải lại hoặc bấm hội thoại mới. Ứng dụng không lưu lịch sử thành tệp. OpenAI dùng Responses API với `store=False`; Gemini dùng GenerateContent với lịch sử do trang gửi, không tạo phiên lưu trữ trên ứng dụng. Nhà cung cấp xử lý nội dung khi bạn gửi câu hỏi. Chưa có API key thì chatbot hiển thị hướng dẫn cấu hình, không tạo câu trả lời giả.
+
+Tài liệu: [Google Gemini API](https://ai.google.dev/api/generate-content), [Model Gemini](https://ai.google.dev/gemini-api/docs/models), [OpenAI Responses API](https://developers.openai.com/api/reference/resources/responses/methods/create).

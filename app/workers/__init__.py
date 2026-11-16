@@ -1,0 +1,1 @@
+"""Financial Analytics project package."""

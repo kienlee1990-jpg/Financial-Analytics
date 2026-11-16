@@ -1,0 +1,9 @@
+-r model.txt
+flask==2.3.3
+flask-cors==4.0.0
+waitress>=3.0,<4
+numpy>=1.26.0
+plotly==5.17.0
+torch>=2.1.0
+openai>=2,<3
+python-dotenv>=1,<2
