@@ -21,3 +21,18 @@ Các lệnh local `./start`, `python3 run.py`, `python3 webui/run.py` và `webui
 - Tài nguyên, lưu trữ, giám sát và kiểm thử tải cần được quyết định theo cách triển khai thực tế.
 
 Không đưa trực tiếp cấu hình hiện tại lên Internet trước khi xử lý các mục phù hợp ở trên.
+
+## Dữ liệu chứng khoán DNSE (Vnstock 6)
+
+Flask/PyTorch vẫn dùng môi trường dự án. Hai worker chứng khoán chạy bằng `~/.venv/bin/python` (Windows: `~/.venv/Scripts/python.exe`), nguồn `dnse` tại `app/config.py`. Môi trường `.venv-vnstock` cũ không còn được ứng dụng gọi và không bị xóa.
+
+Cài bằng Python >=3.10 vào môi trường cố định:
+
+```sh
+python3 -m venv ~/.venv
+~/.venv/bin/python -m pip install -U --extra-index-url https://vnstocks.com/api/packages "vnstock==6.0.1" "vnstock-oapi==0.1.2"
+```
+
+Bỏ qua lệnh tạo nếu `~/.venv` đã tồn tại. Người dùng tự lưu Key/Secret bằng `~/.venv/bin/vnstock keys set dnse`. Không nhập khóa qua giao diện web. Trên server không có keyring, tự cấu hình `DNSE_API_KEY` và `DNSE_API_SECRET` trong secrets của dịch vụ; không commit khóa. Dữ liệu có nguồn DNSE, giá nội bộ nghìn VND, hiển thị VND; thời gian được đổi sang giờ Việt Nam trước khi đưa vào mô hình.
+
+Ứng dụng hiện là bản dùng cá nhân: kiểm tra điều khoản DNSE và bổ sung xác thực trước khi cung cấp dữ liệu cho người khác.

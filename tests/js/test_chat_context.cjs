@@ -6,7 +6,8 @@ class Element {
     setAttribute(k, v) { this.attrs[k] = v; }
     append(...items) { this.children.push(...items); }
     appendChild(item) { this.children.push(item); }
-    querySelectorAll() { return []; }
+    querySelector(selector) { this.parts ||= new Map(); if (!this.parts.has(selector)) this.parts.set(selector, new Element()); return this.parts.get(selector); }
+    querySelectorAll(selector) { return selector === '[data-range-unit]' ? [this.querySelector('low-unit'), this.querySelector('high-unit')] : []; }
     focus() {} remove() { this.removed = true; }
     trigger(name, event = {}) { return this.listeners[name]?.({ preventDefault() {}, stopPropagation() {}, ...event }); }
 }
@@ -40,6 +41,9 @@ async function ask(text) { el('chat-input').value = text; el('chat-form').trigge
 (async () => {
     vm.runInContext('displayPredictionResult(fixture)', context);
     assert.equal(calls.length, 0, 'Rendering a forecast must not call an AI API');
+    assert.equal(el('futures-entry').querySelector('[data-range-low]').textContent, '99.000');
+    assert.equal(el('futures-entry').querySelector('[data-range-high]').textContent, '101.000');
+    assert(el('futures-entry').querySelectorAll('[data-range-unit]').every(unit => unit.textContent === 'VND'));
     assert(el('chat-use-context').checked, 'New displayed result attaches for follow-up questions');
     const snapshot = window.getFinancialChatContext().analysis;
     assert.equal(snapshot.forecast_summary.final_close, 90000);

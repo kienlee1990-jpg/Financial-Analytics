@@ -15,15 +15,37 @@
         let currentPriceUnit = 'USDT';
         let currentPriceScale = 1;
 
-        function formatPrice(value) {
+        function formatPrice(value, includeUnit = true) {
             const scaledValue = Number(value) * currentPriceScale;
             const digits = currentPriceUnit === 'VND' ? 0 : 4;
-            return `${new Intl.NumberFormat('vi-VN', { maximumFractionDigits: digits }).format(scaledValue)} ${currentPriceUnit}`;
+            const formatted = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: digits }).format(scaledValue);
+            return includeUnit ? `${formatted} ${currentPriceUnit}` : formatted;
+        }
+
+        function displayPriceRange(id, low, high) {
+            const range = document.getElementById(id);
+            range.querySelectorAll('[data-range-unit]').forEach(unit => { unit.textContent = currentPriceUnit; });
+            range.querySelector('[data-range-low]').textContent = formatPrice(low, false);
+            range.querySelector('[data-range-high]').textContent = formatPrice(high, false);
         }
 
         // Initialize after page loads
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('chart').addEventListener('click', activateChartScrollZoom);
+            document.addEventListener('pointermove', updateChartCrosshair, true);
+            document.addEventListener('pointerleave', hideChartCrosshair);
+            window.addEventListener('blur', hideChartCrosshair);
+            window.addEventListener('resize', () => {
+                hideChartCrosshair();
+                if (rawPredictionChart) {
+                    const height = sizeChartStage();
+                    Plotly.relayout('chart', { height, autosize: true });
+                }
+            });
+            document.getElementById('chart-zoom-toggle').addEventListener('click', activateChartScrollZoom);
+            document.getElementById('candle-details-close').addEventListener('click', hideCandleDetails);
+            document.addEventListener('keydown', event => { if (event.key === 'Escape') hideCandleDetails(); });
+            setupSymbolSearch('binance');
+            setupSymbolSearch('vnstock');
             initializeApp();
         });
 
@@ -161,6 +183,72 @@
             }
         }
 
+        function setupSymbolSearch(prefix) {
+            const input = document.getElementById(`${prefix}-symbol`);
+            const source = document.getElementById(`${prefix}-symbol-options`);
+            const results = document.getElementById(`${prefix}-symbol-results`);
+            let active = -1;
+            let matches = [];
+            const close = () => {
+                results.hidden = true;
+                input.setAttribute('aria-expanded', 'false');
+                input.removeAttribute('aria-activedescendant');
+                active = -1;
+            };
+            const choose = index => {
+                if (!matches[index]) return;
+                input.value = matches[index].value;
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                close();
+            };
+            const render = () => {
+                const query = input.value.trim().toLocaleLowerCase('vi');
+                matches = [...source.options].filter(option =>
+                    `${option.value} ${option.label}`.toLocaleLowerCase('vi').includes(query)
+                ).slice(0, 40);
+                active = -1;
+                input.removeAttribute('aria-activedescendant');
+                results.replaceChildren();
+                matches.forEach((option, index) => {
+                    const row = document.createElement('div');
+                    row.id = `${prefix}-symbol-result-${index}`;
+                    row.className = 'symbol-result';
+                    row.setAttribute('role', 'option');
+                    row.setAttribute('aria-selected', 'false');
+                    row.textContent = option.label || option.value;
+                    row.addEventListener('pointerdown', event => event.preventDefault());
+                    row.addEventListener('click', () => choose(index));
+                    results.appendChild(row);
+                });
+                results.hidden = !matches.length;
+                input.setAttribute('aria-expanded', String(matches.length > 0));
+            };
+            input.addEventListener('focus', render);
+            input.addEventListener('input', render);
+            input.addEventListener('click', render);
+            input.addEventListener('blur', close);
+            input.addEventListener('keydown', event => {
+                if (event.key === 'Escape') { close(); return; }
+                if (event.key === 'Enter' && !results.hidden && active >= 0) {
+                    event.preventDefault();
+                    choose(active);
+                    return;
+                }
+                if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+                event.preventDefault();
+                if (results.hidden) render();
+                if (!matches.length) return;
+                active = (active + (event.key === 'ArrowDown' ? 1 : -1) + matches.length) % matches.length;
+                [...results.children].forEach((row, index) => row.setAttribute('aria-selected', String(index === active)));
+                const row = results.children[active];
+                input.setAttribute('aria-activedescendant', row.id);
+                row.scrollIntoView({ block: 'nearest' });
+            });
+            new MutationObserver(() => {
+                if (document.activeElement === input) render();
+            }).observe(source, { childList: true });
+        }
+
         async function loadBinanceSymbols() {
             try {
                 const response = await axios.get('/api/binance-symbols');
@@ -289,11 +377,10 @@
             const symbol = document.getElementById('vnstock-symbol').value.trim().toUpperCase();
             const interval = document.getElementById('vnstock-interval').value;
             const count = parseInt(document.getElementById('vnstock-count').value, 10);
-            const apiKey = document.getElementById('vnstock-api-key').value.trim();
             try {
                 showLoading(true);
                 document.getElementById('fetch-vnstock-btn').disabled = true;
-                const response = await axios.post('/api/vnstock-klines', { symbol, interval, count, api_key: apiKey });
+                const response = await axios.post('/api/vnstock-klines', { symbol, interval, count });
                 await loadDataFiles();
                 selectFetchedDataset(response.data);
                 const loaded = await loadData();
@@ -382,7 +469,7 @@
             const match = filename.match(/^(binance|vnstock)_(.+)_([^_]+)\.csv$/i);
             const info = payload.data_info;
             document.getElementById('instrument-symbol').textContent = match ? match[2] : filename;
-            document.getElementById('instrument-source').textContent = match ? `${match[1].toLowerCase() === 'binance' ? 'Binance Spot' : 'Chứng khoán Việt Nam'} · ${match[3]}` : 'Tệp dữ liệu OHLCV';
+            document.getElementById('instrument-source').textContent = match ? `${match[1].toLowerCase() === 'binance' ? 'Binance Spot' : (info.source?.toUpperCase() || 'Chứng khoán Việt Nam')} · ${match[3]}` : 'Tệp dữ liệu OHLCV';
             document.getElementById('dataset-badge').textContent = `${new Intl.NumberFormat('vi-VN').format(info.rows)} NẾN`;
             const candle = payload.last_candle;
             for (const field of ['open', 'high', 'low', 'close']) {
@@ -429,11 +516,11 @@
                     ? 'Đơn vị hiển thị là VND; dữ liệu Vnstock được quy đổi từ nghìn đồng. Giá lịch sử có thể đã điều chỉnh theo sự kiện doanh nghiệp.'
                     : 'Đơn vị giá hiển thị là VND. Giá lịch sử có thể đã điều chỉnh theo sự kiện doanh nghiệp.';
                 unitNote.style.display = 'block';
-                chartUnitGuide.textContent = 'Đơn vị giá: VND. Di chuột lên nến để xem OHLC; dữ liệu Vnstock được quy đổi từ nghìn đồng.';
+                chartUnitGuide.textContent = 'Đơn vị giá: VND. Bấm vào nến để xem OHLC; dữ liệu Vnstock được quy đổi từ nghìn đồng.';
             } else {
                 unitNote.textContent = 'Đơn vị giá: USDT.';
                 unitNote.style.display = 'block';
-                chartUnitGuide.textContent = 'Đơn vị giá: USDT. Di chuột lên nến để xem giá mở, cao nhất, thấp nhất, đóng cửa và khối lượng.';
+                chartUnitGuide.textContent = 'Đơn vị giá: USDT. Bấm vào nến để xem giá mở, cao nhất, thấp nhất, đóng cửa và khối lượng.';
             }
 
             // Initialize time window slider
@@ -721,7 +808,7 @@
             chartWheelZoomEnabled = false;
             chartRangeToRestore = null;
             const interactionHint = document.getElementById('chart-interaction-hint');
-            interactionHint.textContent = 'Nhấp chuột trái một lần để khóa thao tác trên biểu đồ. Nhấp lần nữa để nhả và cuộn trang.';
+            interactionHint.textContent = 'Bấm nến để xem thông tin. Bật “Zoom & kéo” khi cần phóng to hoặc dịch chuyển.';
             interactionHint.classList.remove('is-active');
             document.getElementById('chart-empty').hidden = true;
             document.getElementById('chart').classList.add('has-chart');
@@ -825,10 +912,155 @@
             chartWheelZoomEnabled = !chartWheelZoomEnabled;
             const hint = document.getElementById('chart-interaction-hint');
             hint.textContent = chartWheelZoomEnabled
-                ? 'Đang khóa biểu đồ: cuộn để zoom, giữ chuột trái kéo ngang để dịch chuyển. Nhấp trái lần nữa để nhả.'
-                : 'Đã nhả biểu đồ: cuộn/kéo sẽ thao tác với trang. Nhấp trái lên biểu đồ để khóa lại.';
+                ? 'Bấm nến để xem thông tin. Cuộn để zoom, giữ chuột kéo để dịch chuyển.'
+                : 'Bấm nến để xem thông tin. Bật “Zoom & kéo” khi cần phóng to hoặc dịch chuyển.';
+            document.getElementById('chart-zoom-toggle').setAttribute('aria-pressed', String(chartWheelZoomEnabled));
             hint.classList.toggle('is-active', chartWheelZoomEnabled);
             renderPredictionChart();
+        }
+
+        function hideChartCrosshair() {
+            document.getElementById('chart-crosshair').hidden = true;
+        }
+
+        function chartCursorReadout(layout, x, y) {
+            const xaxis = layout?.xaxis;
+            const axes = [layout?.yaxis, layout?.yaxis2].filter(axis => axis && axis.visible !== false);
+            if (!xaxis || !axes.length || x < xaxis._offset || x > xaxis._offset + xaxis._length) return null;
+            const yaxis = axes.find(axis => y >= axis._offset && y <= axis._offset + axis._length);
+            if (!yaxis) return null;
+            return {
+                time: xaxis.p2d(x - xaxis._offset),
+                value: yaxis.p2d(y - yaxis._offset),
+                activity: yaxis === layout.yaxis2,
+                left: xaxis._offset, right: xaxis._offset + xaxis._length,
+                top: Math.min(...axes.map(axis => axis._offset)),
+                bottom: Math.max(...axes.map(axis => axis._offset + axis._length))
+            };
+        }
+
+        function formatChartCursorTime(value) {
+            // Plotly date axes represent the same wall-clock labels as their date strings.
+            const text = String(value);
+            const match = text.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
+            if (match) return `${match[3]}/${match[2]}/${match[1]}${match[4] ? ` ${match[4]}:${match[5]}` : ''}`;
+            const date = new Date(value);
+            return Number.isNaN(date.getTime()) ? '' : new Intl.DateTimeFormat('vi-VN', {
+                timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            }).format(date);
+        }
+
+        function updateChartCrosshair(event) {
+            if (event.pointerType === 'touch') { hideChartCrosshair(); return; }
+            const graph = document.getElementById('chart');
+            const rect = graph.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            const readout = chartCursorReadout(graph._fullLayout, x, y);
+            if (!readout || !Number.isFinite(Number(readout.value))) { hideChartCrosshair(); return; }
+            const overlay = document.getElementById('chart-crosshair');
+            const stageRect = overlay.parentElement.getBoundingClientRect();
+            const offsetX = rect.left - stageRect.left;
+            const offsetY = rect.top - stageRect.top;
+            const vertical = document.getElementById('chart-crosshair-vertical');
+            const horizontal = document.getElementById('chart-crosshair-horizontal');
+            const price = document.getElementById('chart-cursor-price');
+            const time = document.getElementById('chart-cursor-time');
+            vertical.style.cssText = `left:${offsetX + x}px;top:${offsetY + readout.top}px;height:${readout.bottom - readout.top}px`;
+            horizontal.style.cssText = `left:${offsetX + readout.left}px;top:${offsetY + y}px;width:${readout.right - readout.left}px`;
+            price.textContent = new Intl.NumberFormat('vi-VN', {
+                maximumFractionDigits: readout.activity || currentPriceUnit === 'VND' ? 0 : 4
+            }).format(Number(readout.value));
+            time.textContent = formatChartCursorTime(readout.time);
+            overlay.hidden = false;
+            price.style.left = `${Math.max(0, Math.min(offsetX + readout.right + 3, stageRect.width - price.offsetWidth - 3))}px`;
+            price.style.top = `${offsetY + y}px`;
+            time.style.left = `${Math.max(time.offsetWidth / 2 + 3, Math.min(offsetX + x, stageRect.width - time.offsetWidth / 2 - 3))}px`;
+            time.style.top = `${offsetY + readout.bottom + 3}px`;
+        }
+
+        function hideCandleDetails() {
+            const panel = document.getElementById('candle-details');
+            panel.hidden = false;
+            panel.dataset.selection = '';
+            document.getElementById('candle-details-title').textContent = 'Thông tin nến';
+            document.getElementById('candle-details-time').textContent = 'Bấm vào một cây nến để xem chi tiết';
+            document.getElementById('candle-details-content').replaceChildren();
+        }
+
+        function showCandleDetails(event, traces) {
+            const point = event.points?.[0];
+            if (!point) return;
+            const clickedTrace = traces[point.curveNumber];
+            let index = Array.isArray(point.pointNumber) ? point.pointNumber[0] : point.pointNumber;
+            let detailTrace = clickedTrace;
+            if (clickedTrace?.type === 'candlestick') detailTrace = traces[point.curveNumber + 1];
+            if (!detailTrace?.customdata) return;
+            const values = detailTrace.customdata[index];
+            if (!values) return;
+            const panel = document.getElementById('candle-details');
+            const selection = `${point.curveNumber}:${index}`;
+            document.getElementById('candle-details-title').textContent = detailTrace.name;
+            const timestamp = detailTrace.x[index];
+            document.getElementById('candle-details-time').textContent = String(timestamp).replace('T', ' ').replace(/\.\d+$/, '');
+            const number = (value, digits = 4) => Number.isFinite(Number(value))
+                ? new Intl.NumberFormat('vi-VN', { maximumFractionDigits: digits }).format(Number(value)) : '—';
+            // Custom data already uses the displayed price scale.
+            const price = value => `${number(value, currentPriceUnit === 'VND' ? 0 : 4)} ${currentPriceUnit}`;
+            const rows = [
+                ['Mở cửa', price(values[0])], ['Cao nhất', price(values[1])],
+                ['Thấp nhất', price(values[2])], ['Đóng cửa', price(values[3])],
+                ['Biến động', `${number(values[6], 2)}%`], ['Biên độ', `${number(values[7], 2)}%`],
+                ['MA(7)', price(values[8])], ['MA(25)', price(values[9])], ['MA(99)', price(values[10])],
+                ['Khối lượng', `${number(values[4])} ${currentPriceUnit === 'VND' ? 'cổ phiếu' : 'đơn vị coin'}`],
+                ['Giá trị giao dịch', `${number(values[5], currentPriceUnit === 'VND' ? 0 : 2)} ${currentPriceUnit}`]
+            ];
+            const content = document.getElementById('candle-details-content');
+            content.replaceChildren();
+            const footer = document.createElement('div');
+            footer.className = 'candle-footer';
+            for (const [label, value] of rows) {
+                const term = document.createElement('dt');
+                const description = document.createElement('dd');
+                term.textContent = label;
+                description.textContent = value;
+                const accents = {
+                    'Mở cửa': 'candle-amber', 'Cao nhất': 'candle-green', 'Thấp nhất': 'candle-cyan',
+                    'Biên độ': 'candle-violet', 'MA(7)': 'candle-amber', 'MA(25)': 'candle-pink', 'MA(99)': 'candle-violet'
+                };
+                let accent = accents[label];
+                if (label === 'Đóng cửa' || label === 'Biến động') {
+                    const change = label === 'Đóng cửa' ? Number(values[3]) - Number(values[0]) : Number(values[6]);
+                    accent = change > 0 ? 'candle-green' : change < 0 ? 'candle-red' : 'candle-amber';
+                    if (label === 'Biến động' && change > 0) description.textContent = `+${value}`;
+                }
+                if (accent) description.classList.add(accent);
+                if (label === 'Đóng cửa' || label === 'Biến động') {
+                    term.classList.add('candle-highlight');
+                    description.classList.add('candle-highlight');
+                }
+                if (label === 'MA(7)') {
+                    term.classList.add('candle-group-start');
+                    description.classList.add('candle-group-start');
+                }
+                const target = label === 'Khối lượng' || label === 'Giá trị giao dịch' ? footer : content;
+                target.append(term, description);
+            }
+            content.append(footer);
+            panel.dataset.selection = selection;
+            panel.hidden = false;
+
+        }
+
+        function sizeChartStage() {
+            document.body.classList.add('has-chart');
+            const stage = document.querySelector('.chart-stage');
+            const desktop = window.innerWidth > 800;
+            const expandedHeight = window.innerHeight - stage.getBoundingClientRect().top - 24;
+            const height = desktop ? (document.body.classList.contains('chart-expanded') ? Math.max(433, expandedHeight) : 433) : 420;
+            stage.style.setProperty('--chart-stage-height', `${height}px`);
+            stage.classList.add('chart-ready');
+            return height;
         }
 
         function applyChartViewport(chartData) {
@@ -940,8 +1172,8 @@
                 yanchor: 'top',
                 font: { ...(originalTitle?.font || {}), color: isLightTheme ? '#34465d' : '#e8efff', size: 12, family: 'Inter, ui-sans-serif, system-ui, sans-serif' }
             };
-            chartData.layout.margin = { ...(chartData.layout.margin || {}), l: window.innerWidth < 600 ? 48 : 62, r: 16, t: 48, b: 42 };
-            chartData.layout.height = document.body.classList.contains('chart-expanded') ? Math.max(420, window.innerHeight - 230) : window.innerWidth < 600 ? 520 : Math.max(640, Math.min(820, window.innerHeight * 0.75));
+            chartData.layout.margin = { ...(chartData.layout.margin || {}), l: window.innerWidth < 600 ? 48 : 62, r: 18, t: 28, b: 38 };
+            chartData.layout.height = sizeChartStage();
             chartData.layout.hoverlabel = {
                 ...(chartData.layout.hoverlabel || {}),
                 bgcolor: isLightTheme ? '#ffffff' : '#172527',
@@ -972,6 +1204,7 @@
                         ticks: 'outside',
                         tickcolor: isLightTheme ? '#cbd5e1' : chartGrid,
                         automargin: true,
+                        showspikes: false,
                         tickfont: { ...(chartData.layout[axisName].tickfont || {}), color: chartText, size: 11 }
                     };
                 }
@@ -985,6 +1218,9 @@
             chartData.layout.xaxis = {
                 ...(chartData.layout.xaxis || {}),
                 domain: [0, 1],
+                anchor: 'free', position: 0,
+                title: { text: '' },
+                nticks: 5,
                 rangeslider: { ...(chartData.layout.xaxis?.rangeslider || {}), visible: false }
             };
             chartData.layout.yaxis = {
@@ -993,7 +1229,7 @@
                 fixedrange: true,
                 side: 'right',
                 title: { ...(chartData.layout.yaxis?.title || {}), text: `Giá (${currentPriceUnit})`, font: { color: chartText, size: 12 } },
-                tickformat: currentPriceUnit === 'VND' ? ',.0f' : ',.4f'
+                tickformat: currentPriceUnit === 'VND' ? ',.0f' : ',.4~f'
             };
             const volumeUnit = currentPriceUnit === 'VND' ? 'cổ phiếu' : 'đơn vị coin';
             document.getElementById('chart-activity-hint').textContent = activityMode === 'amount' && currentPriceUnit === 'VND'
@@ -1006,7 +1242,7 @@
                 anchor: 'x',
                 side: 'right',
                 fixedrange: true,
-                title: { text: activityMode === 'amount' ? `${activityTitle} (${currentPriceUnit})` : `${activityTitle} (${volumeUnit})`, font: { color: chartText, size: 10 }, standoff: 8 },
+                title: { text: '' },
                 tickfont: { color: chartText, size: 9 },
                 tickformat: '~s',
                 showgrid: false,
@@ -1163,14 +1399,25 @@
 
             applyChartViewport(chartData);
 
+            hideCandleDetails();
+            hideChartCrosshair();
+            // 'none' suppresses tooltips while retaining Plotly click hit testing.
+            for (const trace of chartData.data) {
+                delete trace.hovertemplate;
+                if (trace.hoverinfo !== 'skip') trace.hoverinfo = 'none';
+                if (trace.type === 'candlestick') trace.hoverinfo = 'none';
+            }
             const chartRender = Plotly.newPlot('chart', chartData.data, chartData.layout, {
                 responsive: true,
                 scrollZoom: chartWheelZoomEnabled,
                 displayModeBar: false
             });
-            if (chartRangeToRestore) {
-                chartRender.then(() => { chartRangeToRestore = null; });
-            }
+            chartRender.then(graph => {
+                if (graph.candleDetailsHandler) graph.removeListener('plotly_click', graph.candleDetailsHandler);
+                graph.candleDetailsHandler = event => showCandleDetails(event, chartData.data);
+                graph.on('plotly_click', graph.candleDetailsHandler);
+                chartRangeToRestore = null;
+            });
         }
 
         function displayForecastSummary(result) {
@@ -1200,7 +1447,7 @@
             document.getElementById('summary-final-close').textContent = formatPrice(finalClose);
             changeNode.textContent = `${direction} ${Math.abs(changePercent).toFixed(2)}%`;
             changeNode.className = `value ${changePercent > 0 ? 'positive' : changePercent < 0 ? 'negative' : ''}`;
-            document.getElementById('summary-range').textContent = `${formatPrice(minClose)} – ${formatPrice(maxClose)}`;
+            displayPriceRange('summary-range', minClose, maxClose);
             const referenceDate = new Date(reference.timestamp).toLocaleString('vi-VN');
             const finalDate = new Date(forecasts[forecasts.length - 1].timestamp).toLocaleString('vi-VN');
             document.getElementById('forecast-summary-note').textContent =
@@ -1355,7 +1602,7 @@
             }
 
             levels.style.display = 'grid';
-            document.getElementById('futures-entry').textContent = `${formatPrice(plan.entry_zone[0])} – ${formatPrice(plan.entry_zone[1])}`;
+            displayPriceRange('futures-entry', plan.entry_zone[0], plan.entry_zone[1]);
             document.getElementById('futures-stop').textContent = formatPrice(plan.stop_loss);
             document.getElementById('futures-tp1').textContent = formatPrice(plan.take_profit_1);
             document.getElementById('futures-tp2').textContent = formatPrice(plan.take_profit_2);
@@ -1448,14 +1695,16 @@
 
         // Set up event listeners
         function setupEventListeners() {
-            const symbolInput = document.getElementById('binance-symbol');
-            let previousSymbol = symbolInput.value;
-            symbolInput.addEventListener('focus', () => {
-                previousSymbol = symbolInput.value;
-                symbolInput.value = '';
-            });
-            symbolInput.addEventListener('blur', () => {
-                symbolInput.value = symbolInput.value.trim().toUpperCase() || previousSymbol;
+            ['binance-symbol', 'vnstock-symbol'].forEach(id => {
+                const symbolInput = document.getElementById(id);
+                let previousSymbol = symbolInput.value;
+                symbolInput.addEventListener('focus', () => {
+                    previousSymbol = symbolInput.value;
+                    symbolInput.value = '';
+                });
+                symbolInput.addEventListener('blur', () => {
+                    symbolInput.value = symbolInput.value.trim().toUpperCase() || previousSymbol;
+                });
             });
             const settingsToggle = document.getElementById('settings-toggle');
             settingsToggle.addEventListener('click', () => {

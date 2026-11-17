@@ -56,6 +56,33 @@ class TemporaryDataTests(unittest.TestCase):
         self.assertEqual(len(frame), 520)
         self.assertTrue(reference.endswith('/vnstock_FPT_1h.csv'))
 
+    def test_dnse_worker_uses_fixed_environment_and_no_browser_key(self):
+        from app.config import VNSTOCK_PYTHON
+        result = SimpleNamespace(returncode=1, stderr='', stdout=json.dumps({
+            'success': False, 'error': 'Thiếu khóa nguồn', 'code': 'VNSTOCK_TEST_AUTH', 'action': 'Lưu khóa DNSE trong Terminal'
+        }))
+        with patch.object(webapp.os.path, 'isfile', return_value=True), \
+             patch.object(webapp.subprocess, 'run', return_value=result) as worker:
+            response = self.client.post('/api/vnstock-klines', json={
+                'symbol': 'FPT', 'interval': '15m', 'count': 700, 'api_key': 'obsolete-browser-value'
+            })
+        self.assertEqual(response.status_code, 502)
+        self.assertEqual(response.get_json()['code'], 'VNSTOCK_TEST_AUTH')
+        self.assertEqual(worker.call_args.args[0][0], str(VNSTOCK_PYTHON))
+        self.assertNotIn('obsolete-browser-value', repr(worker.call_args))
+
+    def test_trading_break_does_not_change_reported_candle_interval(self):
+        frame = self.frame.copy()
+        first_session = pd.date_range('2026-11-16 11:00', periods=3, freq='15min')
+        next_session = pd.date_range('2026-11-16 13:00', periods=517, freq='15min')
+        frame['timestamps'] = first_session.append(next_session)
+        frame.attrs['source'] = 'dnse'
+        reference = webapp.store_temporary_data(frame, 'vnstock_FPT_15m.csv')
+        response = self.client.post('/api/load-data', json={'file_path': reference})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()['data_info']['timeframe'], '15 minutes')
+        self.assertEqual(response.get_json()['data_info']['source'], 'dnse')
+
     def test_prediction_uses_memory_and_does_not_save_results(self):
         reference = webapp.store_temporary_data(self.frame, 'binance_BTCUSDT_1h.csv')
 
@@ -82,6 +109,30 @@ class TemporaryDataTests(unittest.TestCase):
             self.assertIsNone(webapp.save_prediction_results(reference, '', [], [], self.frame, {}))
         self.assertEqual(response.status_code, 200, response.get_json())
         self.assertEqual(len(response.get_json()['prediction_results']), 8)
+
+    def test_forecast_and_chart_share_interval_despite_auction_gap(self):
+        frame = self.frame.copy()
+        times = pd.date_range('2026-11-02 09:00', periods=520, freq='15min').delete(1)
+        frame = frame.iloc[:519].copy()
+        frame['timestamps'] = times
+        frame.loc[frame.index[-1], 'timestamps'] += pd.Timedelta(minutes=15)
+        reference = webapp.store_temporary_data(frame, 'vnstock_FPT_15m.csv')
+        def predict(**kwargs):
+            return pd.DataFrame({'open': [101.] * 8, 'high': [103.] * 8, 'low': [100.] * 8,
+                                 'close': [102.] * 8}, index=kwargs['y_timestamp'])
+        with patch.object(webapp, 'predictor', SimpleNamespace(predict=predict)), \
+             patch.object(webapp, 'MODEL_AVAILABLE', True):
+            response = self.client.post('/api/predict', json={
+                'file_path': reference, 'lookback': 400, 'pred_len': 8, 'forecast_future': True,
+            })
+        self.assertEqual(response.status_code, 200, response.get_json())
+        payload = response.get_json()
+        expected = frame['timestamps'].iloc[-1] + pd.Timedelta(minutes=15)
+        self.assertEqual(pd.Timestamp(payload['prediction_results'][0]['timestamp']), expected)
+        chart = json.loads(payload['chart'])
+        predicted = next(trace for trace in chart['data'] if trace['type'] == 'candlestick' and 'Dự báo' in trace['name'])
+        self.assertEqual(pd.Timestamp(predicted['x'][0]), expected)
+        self.assertEqual(payload['forecast_horizon']['interval_minutes'], 15)
 
     def test_release_never_deletes_saved_files(self):
         reference = webapp.store_temporary_data(self.frame, 'binance_BTCUSDT_1h.csv')

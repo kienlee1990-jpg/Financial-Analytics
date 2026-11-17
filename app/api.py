@@ -16,11 +16,11 @@ import re
 import subprocess
 import time
 import uuid
-from app.config import ROOT_DIR, STATIC_DIR, TEMPLATES_DIR, WORKERS_DIR
+from app.config import ROOT_DIR, STATIC_DIR, TEMPLATES_DIR, WORKERS_DIR, VNSTOCK_PYTHON, VNSTOCK_SOURCE
 from app.services.data import (
     TEMP_DATA_PREFIX, TEMP_DATA_TTL, TEMP_DATA_LIMIT,
     temporary_datasets, temporary_data_lock, prune_temporary_data,
-    store_temporary_data, load_data_files, load_data_file, save_prediction_results,
+    store_temporary_data, load_data_files, load_data_file, save_prediction_results, infer_candle_interval,
 )
 from app.services.charts import create_prediction_chart
 from app.services.scenarios import build_futures_scenario
@@ -197,8 +197,7 @@ def get_vnstock_symbols():
     global VNSTOCK_SYMBOLS_CACHE, VNSTOCK_SYMBOLS_CACHE_TIME
     now = datetime.datetime.now(datetime.timezone.utc).timestamp()
     if not VNSTOCK_SYMBOLS_CACHE or now - VNSTOCK_SYMBOLS_CACHE_TIME > 43200:
-        root_dir = str(ROOT_DIR)
-        vnstock_python = os.path.join(root_dir, '.venv-vnstock', 'bin', 'python')
+        vnstock_python = str(VNSTOCK_PYTHON)
         worker_path = str(WORKERS_DIR / 'vnstock_symbols_worker.py')
         try:
             if not os.path.isfile(vnstock_python):
@@ -232,7 +231,7 @@ def get_vnstock_symbols():
                 'warning': str(exc)
             })
 
-    return jsonify({'symbols': VNSTOCK_SYMBOLS_CACHE, 'source': 'vnstock'})
+    return jsonify({'symbols': VNSTOCK_SYMBOLS_CACHE, 'source': VNSTOCK_SOURCE})
 
 @app.route('/api/vnstock-klines', methods=['POST'])
 def get_vnstock_klines():
@@ -240,7 +239,6 @@ def get_vnstock_klines():
     data = request.get_json(silent=True) or {}
     symbol = str(data.get('symbol', '')).strip().upper()
     interval = str(data.get('interval', '1D')).strip()
-    api_key = str(data.get('api_key', '')).strip()
     try:
         count = int(data.get('count', 700))
     except (TypeError, ValueError):
@@ -253,17 +251,13 @@ def get_vnstock_klines():
     if not 400 <= count <= 1000:
         return jsonify({'error': 'Số lượng nến cổ phiếu phải từ 400 đến 1000.'}), 400
 
-    root_dir = str(ROOT_DIR)
-    vnstock_python = os.path.join(root_dir, '.venv-vnstock', 'bin', 'python')
+    vnstock_python = str(VNSTOCK_PYTHON)
     if not os.path.isfile(vnstock_python):
         return jsonify({
-            'error': 'Môi trường Vnstock chưa được cài. Vui lòng chạy python3 setup_vnstock.py từ thư mục dự án.'
+            'error': 'Cần cài Vnstock 6.0.1 và vnstock-oapi 0.1.2 trong ~/.venv; khóa DNSE được lưu bằng ~/.venv/bin/vnstock keys set dnse.'
         }), 503
 
     worker_path = str(WORKERS_DIR / 'vnstock_worker.py')
-    worker_env = os.environ.copy()
-    if api_key:
-        worker_env['VNSTOCK_API_KEY'] = api_key
     try:
         result = subprocess.run(
             [vnstock_python, worker_path, symbol, interval, str(count)],
@@ -271,7 +265,6 @@ def get_vnstock_klines():
             text=True,
             timeout=90,
             check=False,
-            env=worker_env
         )
     except subprocess.TimeoutExpired:
         return jsonify({'error': 'Vnstock mất quá lâu để lấy dữ liệu. Vui lòng thử lại sau.'}), 504
@@ -285,23 +278,26 @@ def get_vnstock_klines():
         payload = {}
     if result.returncode != 0 or not payload.get('success'):
         detail = payload.get('error') or result.stderr.strip() or 'Nguồn Vnstock không trả dữ liệu.'
-        return jsonify({'error': detail[-1200:]}), 502
+        return jsonify({'error': detail[-1200:], 'code': payload.get('code'), 'action': payload.get('action')}), 502
 
     candles = payload.get('candles', [])
     if len(candles) < 400:
         return jsonify({
-            'error': f'Vnstock chỉ trả về {len(candles)} nến {symbol} khung {interval}; cần ít nhất 400 nến lịch sử để dự báo. Hãy thử khung 15 phút hoặc nhập API key Vnstock để lấy lịch sử dài hơn.'
+            'error': f'Vnstock chỉ trả về {len(candles)} nến {symbol} khung {interval}; cần ít nhất 400 nến lịch sử để dự báo. Hãy thử khung 15 phút hoặc giảm số nến yêu cầu trong giới hạn được hỗ trợ.'
         }), 422
 
     df = pd.DataFrame(candles)
+    df.attrs.update(source=VNSTOCK_SOURCE, attribution=payload.get('attribution', ''))
     filename = f'vnstock_{symbol}_{interval}.csv'
     file_path = store_temporary_data(df, filename)
     return jsonify({
         'success': True,
         'file_path': file_path,
         'temporary': True,
-        'dataset_name': f'{symbol} · {interval} · Vnstock',
-        'message': f'Đã lấy {len(df)} nến {symbol} khung {interval} qua Vnstock. Dữ liệu chỉ dùng tạm, không lưu tệp.'
+        'dataset_name': f'{symbol} · {interval} · {VNSTOCK_SOURCE.upper()}',
+        'source': VNSTOCK_SOURCE,
+        'attribution': payload.get('attribution', ''),
+        'message': f'Đã lấy {len(df)} nến {symbol} khung {interval} từ {VNSTOCK_SOURCE.upper()} qua Vnstock 6. Dữ liệu chỉ dùng tạm, không lưu tệp.'
     })
 
 @app.route('/api/release-data', methods=['POST'])
@@ -345,8 +341,8 @@ def load_data():
             if not time_diffs:
                 return "Unknown"
 
-            # Calculate average time difference
-            avg_diff = sum(time_diffs, pd.Timedelta(0)) / len(time_diffs)
+            # Trading breaks must not inflate the candle interval.
+            avg_diff = pd.Series(time_diffs).median()
 
             # Convert to readable format
             if avg_diff < pd.Timedelta(minutes=1):
@@ -361,6 +357,8 @@ def load_data():
         # Return data information
         data_info = {
             'rows': len(df),
+            'source': df.attrs.get('source'),
+            'attribution': df.attrs.get('attribution'),
             'minimum_lookback': 400,
             'columns': list(df.columns),
             'start_date': df['timestamps'].min().isoformat() if 'timestamps' in df.columns else 'N/A',
@@ -437,7 +435,7 @@ def predict():
                         return jsonify({'error': f'Cần ít nhất {lookback} nến lịch sử để dự báo tiếp theo.'}), 400
                     x_df = df.iloc[-lookback:][required_cols]
                     x_timestamp = df.iloc[-lookback:]['timestamps']
-                    time_diff = df['timestamps'].iloc[-1] - df['timestamps'].iloc[-2] if len(df) > 1 else pd.Timedelta(hours=1)
+                    time_diff = infer_candle_interval(df)
                     y_timestamp = pd.Series(pd.date_range(
                         start=df['timestamps'].iloc[-1] + time_diff,
                         periods=pred_len,
@@ -566,7 +564,7 @@ def predict():
         if 'timestamps' in df.columns:
             if forecast_future:
                 last_timestamp = df['timestamps'].iloc[-1]
-                time_diff = df['timestamps'].iloc[-1] - df['timestamps'].iloc[-2] if len(df) > 1 else pd.Timedelta(hours=1)
+                time_diff = infer_candle_interval(df)
                 future_timestamps = pd.date_range(
                     start=last_timestamp + time_diff,
                     periods=pred_len,
@@ -581,7 +579,7 @@ def predict():
                 if len(time_range_df) >= lookback:
                     # Calculate prediction timestamps starting from last time point of selected window
                     last_timestamp = time_range_df['timestamps'].iloc[lookback-1]
-                    time_diff = df['timestamps'].iloc[1] - df['timestamps'].iloc[0]
+                    time_diff = infer_candle_interval(df)
                     future_timestamps = pd.date_range(
                         start=last_timestamp + time_diff,
                         periods=pred_len,
@@ -592,7 +590,7 @@ def predict():
             else:
                 # Latest data: calculate from last time point of entire data file
                 last_timestamp = df['timestamps'].iloc[-1]
-                time_diff = df['timestamps'].iloc[1] - df['timestamps'].iloc[0]
+                time_diff = infer_candle_interval(df)
                 future_timestamps = pd.date_range(
                     start=last_timestamp + time_diff,
                     periods=pred_len,
@@ -626,7 +624,7 @@ def predict():
             float(x_df['close'].iloc[-1])
         )
         if 'timestamps' in df.columns and len(df) > 1:
-            bar_interval = df['timestamps'].diff().dropna().median()
+            bar_interval = infer_candle_interval(df)
         else:
             bar_interval = pd.Timedelta(hours=1)
         horizon = bar_interval * len(prediction_results)

@@ -1,0 +1,3 @@
+--extra-index-url https://vnstocks.com/api/packages
+vnstock==6.0.1
+vnstock-oapi==0.1.2

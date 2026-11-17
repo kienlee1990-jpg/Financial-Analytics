@@ -1,33 +1,40 @@
-"""List Vietnamese equity symbols and company names through Vnstock."""
-
+"""Danh sách mã từ DNSE qua Vnstock 6; khóa do thư viện đọc từ keyring."""
 import json
+import re
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from app.config import VNSTOCK_SOURCE
 
 
 def main():
     try:
-        from vnstock import Listing
-
-        frame = Listing(source='vci').all_symbols()
-        columns = {str(column).strip().lower(): column for column in frame.columns}
-        symbol_col = columns.get('symbol')
-        name_col = columns.get('organ_name') or columns.get('org_name') or columns.get('name')
-        if symbol_col is None:
-            raise RuntimeError('Danh sách Vnstock không có cột mã chứng khoán.')
-
-        items = []
-        for _, row in frame.iterrows():
-            symbol = str(row[symbol_col]).strip().upper()
-            if not symbol or symbol == 'NAN':
-                continue
-            name = str(row[name_col]).strip() if name_col is not None else ''
-            items.append({'symbol': symbol, 'name': '' if name == 'nan' else name})
-        items.sort(key=lambda item: item['symbol'])
-        print(json.dumps({'success': True, 'symbols': items}, ensure_ascii=False))
-    except Exception as exc:
-        print(json.dumps({'success': False, 'error': str(exc)}, ensure_ascii=False))
+        from vnstock import Reference
+        from vnstock.errors import VnstockError
+    except ImportError:
+        print(json.dumps({'success': False, 'error': 'Cần Vnstock thế hệ 6 trong ~/.venv.'}))
         return 1
-    return 0
+    try:
+        frame = Reference(VNSTOCK_SOURCE).equity.list()
+        if 'symbol' not in frame.columns:
+            raise ValueError('Danh sách DNSE không có cột mã chứng khoán.')
+        name_col = next((name for name in ('organ_name', 'organ_short_name', 'name_en') if name in frame.columns), None)
+        items = []
+        for row in frame.to_dict(orient='records'):
+            symbol = str(row['symbol']).strip().upper()
+            if not re.fullmatch(r'[A-Z0-9]{2,10}', symbol):
+                continue
+            name = str(row.get(name_col, '')).strip() if name_col else ''
+            items.append({'symbol': symbol, 'name': '' if name in ('nan', '<NA>', 'None') else name})
+        items.sort(key=lambda item: item['symbol'])
+        payload = {'success': True, 'source': VNSTOCK_SOURCE, 'symbols': items}
+    except VnstockError as error:
+        payload = {'success': False, 'error': str(error), 'code': error.code, 'action': error.action}
+    except (ValueError, KeyError, TypeError) as error:
+        payload = {'success': False, 'error': str(error)}
+    print(json.dumps(payload, ensure_ascii=False, default=str))
+    return 0 if payload['success'] else 1
 
 
 if __name__ == '__main__':

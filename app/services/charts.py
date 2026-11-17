@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.utils
+from app.services.data import infer_candle_interval
 
 def create_prediction_chart(df, pred_df, lookback, pred_len, actual_df=None, historical_start_idx=0):
     """Create prediction chart"""
@@ -85,7 +86,7 @@ def create_prediction_chart(df, pred_df, lookback, pred_len, actual_df=None, his
         if 'timestamps' in df.columns and len(historical_df) > 0:
             # Start from the last timestamp of historical data, create prediction timestamps with the same time interval
             last_timestamp = historical_df['timestamps'].iloc[-1]
-            time_diff = df['timestamps'].iloc[1] - df['timestamps'].iloc[0] if len(df) > 1 else pd.Timedelta(hours=1)
+            time_diff = infer_candle_interval(df)
 
             pred_timestamps = pd.date_range(
                 start=last_timestamp + time_diff,
@@ -120,7 +121,7 @@ def create_prediction_chart(df, pred_df, lookback, pred_len, actual_df=None, his
                 # If no prediction timestamps, calculate from the last timestamp of historical data
                 if len(historical_df) > 0:
                     last_timestamp = historical_df['timestamps'].iloc[-1]
-                    time_diff = df['timestamps'].iloc[1] - df['timestamps'].iloc[0] if len(df) > 1 else pd.Timedelta(hours=1)
+                    time_diff = infer_candle_interval(df)
                     actual_timestamps = pd.date_range(
                         start=last_timestamp + time_diff,
                         periods=len(actual_df),

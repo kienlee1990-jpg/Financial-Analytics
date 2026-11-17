@@ -198,3 +198,11 @@ def save_prediction_results(file_path, prediction_type, prediction_results, actu
     except Exception as e:
         print(f"Failed to save prediction results: {e}")
         return None
+
+def infer_candle_interval(df):
+    """Infer bar spacing without counting lunch, overnight, or weekend gaps as a bar."""
+    if 'timestamps' not in df.columns or len(df) < 2:
+        return pd.Timedelta(hours=1)
+    differences = pd.to_datetime(df['timestamps']).sort_values().diff().dropna()
+    differences = differences[differences > pd.Timedelta(0)]
+    return differences.median() if len(differences) else pd.Timedelta(hours=1)

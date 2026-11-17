@@ -84,3 +84,6 @@ tmp/
 .env.*
 !.env.example
 webui/prediction_results/*.json
+
+# Local migration backup and data checks
+vnstock-migration/

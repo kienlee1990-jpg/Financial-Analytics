@@ -1,0 +1,3 @@
+Tool: built-in ImageGen
+
+Use case: stylized-concept. Asset type: small wide illustration for a white financial analytics dashboard header. Primary request: a beautiful polished miniature 3D composition of translucent emerald glass financial candlesticks, a smooth champagne gold rising ribbon and a few tiny gold glints. Elegant sophisticated editorial fintech aesthetic, restrained, premium materials, soft studio shadows. White background pure #ffffff, landscape 3:2 composition, objects centered with generous white breathing room, no lettering, no words, no numbers, no logos, no watermark. Emerald, jade, teal and champagne gold palette. Must work beautifully at 240 by 110 pixels as a decorative header picture. No full UI or dashboard, no dark backdrop.
