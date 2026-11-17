@@ -7,7 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='kronos-mark.svg', v='3') }}">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css', v='forecast10') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css', v='brand19') }}">
 </head>
 <body data-theme="light">
     <a class="skip-link" href="#workspace">Đi đến không gian phân tích</a>
@@ -23,7 +23,19 @@
             <nav aria-label="Điều hướng chính"><a href="#forecast-summary" id="results-link" hidden>Kết quả dự báo</a></nav>
             <div class="topbar-right"><span class="workspace-badge">AI Research Terminal</span><button class="settings-toggle" id="settings-toggle" type="button" aria-controls="analysis-settings" aria-expanded="false">Thiết lập</button></div>
         </header>
-        <div class="workspace-header"><div class="workspace-title"><span class="workspace-title-icon" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#chart"></use></svg></span><div><span class="workspace-path">Không gian làm việc / Phân tích</span><h1 id="page-title">Phân tích thị trường</h1></div></div><span class="workspace-caption">Kronos · OHLCV · Dự báo AI</span></div>
+        <div class="workspace-header">
+            <div class="workspace-title">
+                <div class="workspace-title-copy">
+                    <h1 id="page-title">Tổng quan thị trường</h1>
+                    <p class="workspace-subtitle">Theo dõi dữ liệu và khám phá xu hướng cùng Kronos</p>
+                </div>
+            </div>
+            <div class="workspace-caption" aria-label="Công cụ phân tích">
+                <span class="workspace-chip chip-kronos">Kronos</span>
+                <span class="workspace-chip chip-data">OHLCV</span>
+                <span class="workspace-chip chip-ai">Dự báo AI</span>
+            </div>
+        </div>
         <main class="main-content" id="workspace">
             <aside class="control-panel" id="analysis-settings" aria-label="Thiết lập phân tích">
                 <div class="panel-heading"><h2><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#sliders"></use></svg>Thiết lập phân tích</h2><span class="panel-tag">KRONOS</span></div>
@@ -61,7 +73,6 @@
                         <input type="number" id="binance-limit" value="700" min="520" max="1000" step="1">
                     </div>
                     <button id="fetch-binance-btn" class="btn btn-success"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#download"></use></svg>Tải dữ liệu Binance</button>
-                    <small class="form-text">Lấy dữ liệu Spot công khai, không cần API key. Dữ liệu được nạp tạm để xem và dự báo, không lưu tệp vào máy.</small>
                     </div>
                     </details>
                 </div>
@@ -106,6 +117,8 @@
                 </div>
                 </section>
 
+                <details class="manual-data-settings advanced-settings">
+                    <summary>Tải dữ liệu thủ công</summary>
                 <div class="form-group">
                     <label for="data-file-select">Chọn tệp dữ liệu:</label>
                     <select id="data-file-select">
@@ -117,6 +130,7 @@
                 <button id="load-data-btn" class="btn btn-secondary">
                     <svg class="ui-icon" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons.svg') }}#folder"></use></svg>Tải dữ liệu
                 </button>
+                </details>
 
                 <!-- Data Information Display -->
                 <div id="data-info" class="data-info" style="display: none;">
